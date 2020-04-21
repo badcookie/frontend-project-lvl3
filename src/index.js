@@ -1,6 +1,6 @@
 const init = () => {
   const element = document.getElementById('entrypoint');
-  element.textContent = 'hello, world!';
+  element.textContent = 'it works';
 };
 
 init();
