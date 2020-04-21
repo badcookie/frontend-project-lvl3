@@ -24,9 +24,10 @@ jobs:
           CI: true
       - name: Run linter
         run: make lint
-      - name: Test & publish code coverage
-        uses: paambaati/codeclimate-action@v2.4.0
-        env:
-          CC_TEST_REPORTER_ID: e35b13ab66664133bd1c1bdd9c1715a6fb38cafb4050e7b67aa293059362ea9d
-        with:
-          coverageCommand: make coverage
+      # TODO: uncomment after adding some useful tests
+      # - name: Test & publish code coverage
+      #   uses: paambaati/codeclimate-action@v2.4.0
+      #   env:
+      #     CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      #   with:
+      #     coverageCommand: make coverage
