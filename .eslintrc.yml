@@ -2,7 +2,6 @@
 
 plugins:
   - jest
-  - babel
 
 env:
   browser: true
@@ -12,8 +11,6 @@ env:
 extends:
   - 'airbnb-base'
   - 'plugin:jest/recommended'
-
-parser: babel-eslint
 
 globals:
   Atomics: readonly
