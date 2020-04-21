@@ -1,0 +1,28 @@
+{
+  "name": "rss-reader",
+  "version": "1.0.0",
+  "description": "News feed with auto update",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jest": "^23.8.2",
+    "jest": "^25.4.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/badcookie/rss-reader.git"
+  },
+  "author": "Polina Novokreschenova",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/badcookie/rss-reader/issues"
+  },
+  "homepage": "https://github.com/badcookie/rss-reader#readme"
+}
