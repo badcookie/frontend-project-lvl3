@@ -1,13 +1,8 @@
-const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 
 module.exports = {
   mode: process.env.NODE_ENV || 'development',
-  output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist'),
-  },
   module: {
     rules: [
       {
