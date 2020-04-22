@@ -1,4 +1,8 @@
 import * as yup from 'yup';
+import axios from 'axios';
+
+import render from './view';
+import parse from './parser';
 
 /* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
@@ -63,5 +67,25 @@ export default () => {
   const form = document.querySelector('form');
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+
+    if (!state.form.isValid) {
+      state.form.processState = 'failed';
+      return;
+    }
+
+    state.form.processState = 'sending';
+
+    axios.get(state.form.data)
+      .then((response) => {
+        state.form.processState = 'finished';
+        parse(response.data);
+      })
+      .catch((error) => {
+        state.form.processState = 'failed';
+        state.form.message = messages.error.network;
+        throw error;
+      });
   });
+
+  render(state);
 };
