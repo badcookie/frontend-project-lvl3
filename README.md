@@ -6,4 +6,4 @@ News feed with auto update.
 
 ## Visit
 
-https://rss-reader-pgf7zx8mk.now.sh/
+https://rss-reader-three.now.sh/
