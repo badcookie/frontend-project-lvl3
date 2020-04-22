@@ -28,22 +28,17 @@ const schema = yup.object().shape({
     .notAdded({ message: messages.error.linkAlreadyExists }),
 });
 
-const handleSubmit = (state) => (event) => {
-  event.preventDefault();
-
-  const formData = new FormData(event.target);
-  const url = formData.get('url');
-
+const validate = (state) => {
+  const dataToValidate = { url: state.form.data };
   const validationContext = { context: { state } };
 
-  schema.validate({ url }, validationContext)
+  schema.validate(dataToValidate, validationContext)
     .then(() => {
-      state.form.error = '';
+      state.form.message = '';
       state.form.isValid = true;
-      state.links = [...state.links, url];
     })
     .catch((error) => {
-      state.form.error = error.message;
+      state.form.message = error.message;
       state.form.isValid = false;
     });
 };
@@ -51,12 +46,22 @@ const handleSubmit = (state) => (event) => {
 export default () => {
   const state = {
     form: {
+      data: '',
+      message: '',
       isValid: true,
-      error: '',
+      processState: 'filling',
     },
     links: [],
   };
 
+  const inputField = document.querySelector('input');
+  inputField.addEventListener('input', ({ target }) => {
+    state.form.data = target.value;
+    validate(state);
+  });
+
   const form = document.querySelector('form');
-  form.addEventListener('submit', handleSubmit(state));
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+  });
 };
