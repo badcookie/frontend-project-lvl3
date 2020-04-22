@@ -1,14 +1,13 @@
 name: Lint
 
-on:
-  - push
+on: push
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: npm install
+      - name: Fetch dependencies
         run: make install
         env:
           CI: true
