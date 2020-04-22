@@ -28,8 +28,8 @@ yup.addMethod(yup.string, 'notAdded', function ({ message }) {
 const schema = yup.object().shape({
   url: yup.string()
     .required()
-    .url({ message: messages.error.invalidUrl })
-    .notAdded({ message: messages.error.linkAlreadyExists }),
+    .url(messages.error.invalidUrl)
+    .notAdded(messages.error.linkAlreadyExists),
 });
 
 const validate = (state) => {
@@ -61,6 +61,7 @@ export default () => {
   const inputField = document.querySelector('input');
   inputField.addEventListener('input', ({ target }) => {
     state.form.data = target.value;
+    state.form.processState = 'filling';
     validate(state);
   });
 
@@ -73,18 +74,21 @@ export default () => {
       return;
     }
 
-    state.form.processState = 'sending';
+    // state.form.processState = 'sending';
+    state.form.processState = 'finished';
+    state.form.message = messages.success;
 
-    axios.get(state.form.data)
-      .then((response) => {
-        state.form.processState = 'finished';
-        parse(response.data);
-      })
-      .catch((error) => {
-        state.form.processState = 'failed';
-        state.form.message = messages.error.network;
-        throw error;
-      });
+    // axios.get(state.form.data)
+    //   .then((response) => {
+    //     parse(response.data);
+    //     state.form.processState = 'finished';
+    //     state.form.message = messages.success;
+    //   })
+    //   .catch((error) => {
+    //     state.form.processState = 'failed';
+    //     state.form.message = messages.error.network;
+    //     throw error;
+    //   });
   });
 
   render(state);
