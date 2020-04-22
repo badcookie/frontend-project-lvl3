@@ -7,7 +7,7 @@ import * as yup from 'yup';
 const messages = {
   error: {
     network: 'Network error',
-    linkAlreadyExists: 'Link already exists',
+    linkAlreadyExists: 'Link was already added',
     invalidUrl: 'Link must be valid url',
   },
   success: 'RSS has been loaded',
@@ -22,23 +22,25 @@ yup.addMethod(yup.string, 'notAdded', function ({ message }) {
 });
 
 const schema = yup.object().shape({
-  link: yup.string()
+  url: yup.string()
     .required()
     .url({ message: messages.error.invalidUrl })
     .notAdded({ message: messages.error.linkAlreadyExists }),
 });
 
-const updateValidationState = (state) => {
-  const { form: { data }, links } = state;
+const handleSubmit = (state) => (event) => {
+  event.preventDefault();
 
-  const dataToValidate = { link: data };
+  const formData = new FormData(event.target);
+  const url = formData.get('url');
+
   const validationContext = { context: { state } };
 
-  schema.validate(dataToValidate, validationContext)
+  schema.validate({ url }, validationContext)
     .then(() => {
       state.form.error = '';
       state.form.isValid = true;
-      state.links = [...links, data];
+      state.links = [...state.links, url];
     })
     .catch((error) => {
       state.form.error = error.message;
@@ -49,16 +51,12 @@ const updateValidationState = (state) => {
 export default () => {
   const state = {
     form: {
-      data: '',
       isValid: true,
       error: '',
     },
     links: [],
   };
 
-  const inputField = document.querySelector('input');
-  inputField.addEventListener('change', ({ target }) => {
-    state.form.data = target.value;
-    updateValidationState(state);
-  });
+  const form = document.querySelector('form');
+  form.addEventListener('submit', handleSubmit(state));
 };
