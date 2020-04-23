@@ -40,8 +40,8 @@ export default () => {
   const state = {
     form: {
       data: '',
-      isValid: true,
-      messageType: '',
+      isValid: false,
+      messageType: 'required',
       messageContext: {},
       processState: 'filling',
     },
@@ -83,5 +83,5 @@ export default () => {
 
   render(state);
 
-  i18next.init({ lng: 'en', debug: true, resources });
+  i18next.init({ lng: 'en', resources });
 };

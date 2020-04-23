@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`empty url 1`] = `
+"<div class=\\"container mt-5\\">
+    <div class=\\"jumbotron\\">
+        <h1>RSS Reader</h1>
+        <p class=\\"lead\\">Start reading RSS today! It is easy, it is nicely.</p>
+        <p class=\\"text-muted\\">https://ru.hexlet.io/lessons.rss</p>
+        <form class=\\"form-inline rss-form\\">
+            <div class=\\"form-group\\">
+                <input type=\\"text\\" name=\\"url\\" class=\\"form-control\\" placeholder=\\"RSS link\\" style=\\"border-color: red;\\">
+            </div>
+            <button type=\\"submit\\" class=\\"btn btn-primary ml-1\\">Add</button>
+        </form>
+        <div class=\\"feedback text-danger\\">URL is required</div>
+    </div>
+    <footer class=\\"footer\\">
+        <p>© Hexlet Production</p>
+    </footer>
+</div>"
+`;
+
+exports[`invalid url 1`] = `
+"<div class=\\"container mt-5\\">
+    <div class=\\"jumbotron\\">
+        <h1>RSS Reader</h1>
+        <p class=\\"lead\\">Start reading RSS today! It is easy, it is nicely.</p>
+        <p class=\\"text-muted\\">https://ru.hexlet.io/lessons.rss</p>
+        <form class=\\"form-inline rss-form\\">
+            <div class=\\"form-group\\">
+                <input type=\\"text\\" name=\\"url\\" class=\\"form-control\\" placeholder=\\"RSS link\\">
+            </div>
+            <button type=\\"submit\\" class=\\"btn btn-primary ml-1\\">Add</button>
+        </form>
+    </div>
+    <footer class=\\"footer\\">
+        <p>© Hexlet Production</p>
+    </footer>
+</div>"
+`;
+
+exports[`invalid url 2`] = `
+"<div class=\\"container mt-5\\">
+    <div class=\\"jumbotron\\">
+        <h1>RSS Reader</h1>
+        <p class=\\"lead\\">Start reading RSS today! It is easy, it is nicely.</p>
+        <p class=\\"text-muted\\">https://ru.hexlet.io/lessons.rss</p>
+        <form class=\\"form-inline rss-form\\">
+            <div class=\\"form-group\\">
+                <input type=\\"text\\" name=\\"url\\" class=\\"form-control\\" placeholder=\\"RSS link\\" value=\\"invalid url\\">
+            </div>
+            <button type=\\"submit\\" class=\\"btn btn-primary ml-1\\">Add</button>
+        </form>
+    </div>
+    <footer class=\\"footer\\">
+        <p>© Hexlet Production</p>
+    </footer>
+</div>"
+`;
+
+exports[`invalid url 3`] = `
+"<div class=\\"container mt-5\\">
+    <div class=\\"jumbotron\\">
+        <h1>RSS Reader</h1>
+        <p class=\\"lead\\">Start reading RSS today! It is easy, it is nicely.</p>
+        <p class=\\"text-muted\\">https://ru.hexlet.io/lessons.rss</p>
+        <form class=\\"form-inline rss-form\\">
+            <div class=\\"form-group\\">
+                <input type=\\"text\\" name=\\"url\\" class=\\"form-control\\" placeholder=\\"RSS link\\" value=\\"invalid url\\" style=\\"border-color: red;\\">
+            </div>
+            <button type=\\"submit\\" class=\\"btn btn-primary ml-1\\">Add</button>
+        </form>
+        <div class=\\"feedback text-danger\\">Invalid URL</div>
+    </div>
+    <footer class=\\"footer\\">
+        <p>© Hexlet Production</p>
+    </footer>
+</div>"
+`;
