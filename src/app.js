@@ -1,9 +1,9 @@
+import axios from 'axios';
 import * as yup from 'yup';
-// import axios from 'axios';
 import i18next from 'i18next';
 
 import render from './view';
-// import parse from './parser';
+import parse from './parser';
 import resources from './locales';
 
 /* eslint-disable func-names */
@@ -64,26 +64,21 @@ export default () => {
       return;
     }
 
-    state.form.processState = 'failed';
-    state.form.messageType = 'network';
-    state.form.messageContext = { status: 404, reason: 'Not found' };
+    state.form.processState = 'sending';
 
-    // state.form.processState = 'finished';
-    // state.form.messageType = 'success';
-
-    // state.form.processState = 'sending';
-
-    // axios.get(state.form.data)
-    //   .then((response) => {
-    //     parse(response.data);
-    //     state.form.processState = 'finished';
-    //     state.form.messageType = 'success';
-    //   })
-    //   .catch((error) => {
-    //     state.form.processState = 'failed';
-    //     state.form.messageType = 'network';
-    //     throw error;
-    //   });
+    axios.get(state.form.data)
+      .then((response) => {
+        parse(response.data);
+        state.form.processState = 'finished';
+        state.form.messageType = 'success';
+      })
+      .catch((error) => {
+        const { response: { status, data } } = error;
+        state.form.processState = 'failed';
+        state.form.messageType = 'network';
+        state.form.messageContext = { status, data };
+        throw error;
+      });
   });
 
   render(state);

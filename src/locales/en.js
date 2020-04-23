@@ -2,7 +2,7 @@ export default {
   en: {
     translation: {
       messages: {
-        network: 'Network error: {{ reason }} ({{ status }})',
+        network: 'Network error: {{ data }} ({{ status }})',
         required: 'URL is required',
         notAdded: 'URL was already added',
         url: 'Invalid URL',
