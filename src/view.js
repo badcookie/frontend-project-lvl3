@@ -1,3 +1,4 @@
+import i18next from 'i18next';
 import { watch } from 'melanke-watchjs';
 
 
@@ -24,17 +25,20 @@ export default (state) => {
         break;
       }
       case 'failed': {
+        const { form: { messageType, messageContext } } = state;
+        const infoMessage = i18next.t(`messages.${messageType}`, messageContext);
         const feedbackElement = document.createElement('div');
         feedbackElement.classList.add('feedback', 'text-danger');
-        feedbackElement.textContent = state.form.message;
+        feedbackElement.textContent = infoMessage;
         formContainer.appendChild(feedbackElement);
         inputField.style.borderColor = 'red';
         break;
       }
       case 'finished': {
+        const infoMessage = i18next.t(`messages.${state.form.messageType}`);
         const feedbackElement = document.createElement('div');
         feedbackElement.classList.add('feedback', 'text-success');
-        feedbackElement.textContent = state.form.message;
+        feedbackElement.textContent = infoMessage;
         formContainer.appendChild(feedbackElement);
         inputField.value = '';
         inputField.style.removeProperty('border');
@@ -44,7 +48,5 @@ export default (state) => {
         throw new Error(`Unknown state: ${processState}`);
       }
     }
-
-    console.log(state);
   });
 };

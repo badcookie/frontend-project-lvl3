@@ -1,35 +1,24 @@
 import * as yup from 'yup';
-import axios from 'axios';
+// import axios from 'axios';
+import i18next from 'i18next';
 
 import render from './view';
-import parse from './parser';
+// import parse from './parser';
+import resources from './locales';
 
 /* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
 
-// TODO: i18n
-const messages = {
-  error: {
-    network: 'Network error',
-    linkAlreadyExists: 'Link was already added',
-    invalidUrl: 'Link must be valid url',
-  },
-  success: 'RSS has been loaded',
-};
-
-yup.addMethod(yup.string, 'notAdded', function ({ message }) {
-  return this.test('notAdded', message, function (link) {
+yup.addMethod(yup.string, 'notAdded', function () {
+  return this.test('notAdded', function (link) {
     const { path, createError, options } = this;
     const { context: { state } } = options;
-    return state.links.includes(link) ? createError({ path, message }) : true;
+    return state.links.includes(link) ? createError({ path }) : true;
   });
 });
 
 const schema = yup.object().shape({
-  url: yup.string()
-    .required()
-    .url(messages.error.invalidUrl)
-    .notAdded(messages.error.linkAlreadyExists),
+  url: yup.string().required().url().notAdded(),
 });
 
 const validate = (state) => {
@@ -38,11 +27,11 @@ const validate = (state) => {
 
   schema.validate(dataToValidate, validationContext)
     .then(() => {
-      state.form.message = '';
+      state.form.messageType = '';
       state.form.isValid = true;
     })
     .catch((error) => {
-      state.form.message = error.message;
+      state.form.messageType = error.type;
       state.form.isValid = false;
     });
 };
@@ -51,8 +40,9 @@ export default () => {
   const state = {
     form: {
       data: '',
-      message: '',
       isValid: true,
+      messageType: '',
+      messageContext: {},
       processState: 'filling',
     },
     links: [],
@@ -74,22 +64,29 @@ export default () => {
       return;
     }
 
+    state.form.processState = 'failed';
+    state.form.messageType = 'network';
+    state.form.messageContext = { status: 404, reason: 'Not found' };
+
+    // state.form.processState = 'finished';
+    // state.form.messageType = 'success';
+
     // state.form.processState = 'sending';
-    state.form.processState = 'finished';
-    state.form.message = messages.success;
 
     // axios.get(state.form.data)
     //   .then((response) => {
     //     parse(response.data);
     //     state.form.processState = 'finished';
-    //     state.form.message = messages.success;
+    //     state.form.messageType = 'success';
     //   })
     //   .catch((error) => {
     //     state.form.processState = 'failed';
-    //     state.form.message = messages.error.network;
+    //     state.form.messageType = 'network';
     //     throw error;
     //   });
   });
 
   render(state);
+
+  i18next.init({ lng: 'en', debug: true, resources });
 };
