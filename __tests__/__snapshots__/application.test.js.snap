@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`empty url 1`] = `
+exports[`passing empty url 1`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>
@@ -20,7 +20,7 @@ exports[`empty url 1`] = `
 </div>"
 `;
 
-exports[`invalid url 1`] = `
+exports[`passing invalid url 1`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>
@@ -39,7 +39,7 @@ exports[`invalid url 1`] = `
 </div>"
 `;
 
-exports[`invalid url 2`] = `
+exports[`passing invalid url 2`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>
@@ -58,7 +58,7 @@ exports[`invalid url 2`] = `
 </div>"
 `;
 
-exports[`invalid url 3`] = `
+exports[`passing invalid url 3`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>

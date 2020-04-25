@@ -29,7 +29,7 @@ beforeEach(() => {
   };
 });
 
-test('invalid url', async () => {
+test('passing invalid url', async () => {
   expect(getTree()).toMatchSnapshot();
 
   await userEvent.type(elements.input, 'invalid url', { allAtOnce: true });
@@ -44,7 +44,7 @@ test('invalid url', async () => {
   expect(getTree()).toMatchSnapshot();
 });
 
-test('empty url', async () => {
+test('passing empty url', async () => {
   elements.form.submit();
   await timer.start(10);
 
