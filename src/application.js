@@ -4,13 +4,11 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 
 import render from './view';
-import RSSParser from './parser';
+import parse from './parser';
 import resources from './locales';
 
 /* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
-
-const parser = new RSSParser();
 
 yup.addMethod(yup.string, 'notAdded', function () {
   return this.test('notAdded', function (url) {
@@ -73,7 +71,7 @@ export default () => {
 
     axios.get(state.form.data)
       .then((response) => {
-        const { items, ...feedData } = parser.parse(response.data);
+        const { items, ...feedData } = parse(response.data);
 
         const feedId = _.uniqueId();
         const identifiedFeedData = { ...feedData, id: feedId };

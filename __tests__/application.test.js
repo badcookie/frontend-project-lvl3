@@ -6,7 +6,7 @@ import { html } from 'js-beautify';
 import userEvent from '@testing-library/user-event';
 
 import run from '../src/application';
-import RSSParser from '../src/parser';
+import parse from '../src/parser';
 
 const htmlOptions = {
   preserve_newlines: true,
@@ -61,12 +61,10 @@ describe('ui', () => {
 });
 
 test('parser', () => {
-  const parser = new RSSParser();
-
   const rawRss = readFixture('rawRss.xml');
   const parsedRss = readFixture('parsedRss.json');
 
   const expected = JSON.parse(parsedRss);
-  const actual = parser.parse(rawRss);
+  const actual = parse(rawRss);
   expect(actual).toEqual(expected);
 });
