@@ -10,10 +10,11 @@ import resources from './locales';
 /* eslint no-param-reassign: ["error", { "props": false }] */
 
 yup.addMethod(yup.string, 'notAdded', function () {
-  return this.test('notAdded', function (link) {
+  return this.test('notAdded', function (url) {
     const { path, createError, options } = this;
     const { context: { state } } = options;
-    return state.links.includes(link) ? createError({ path }) : true;
+    const feedExists = state.feeds.find(({ link }) => url === link);
+    return feedExists ? createError({ path }) : true;
   });
 });
 
@@ -45,7 +46,8 @@ export default () => {
       messageContext: {},
       processState: 'filling',
     },
-    links: [],
+    feeds: [],
+    posts: [],
   };
 
   const inputField = document.querySelector('input');
