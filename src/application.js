@@ -55,11 +55,14 @@ export default () => {
     },
     feeds: [],
     posts: [],
+    activeFeedId: null,
     elements: {
       input: document.querySelector('input'),
       form: document.querySelector('form'),
       submit: document.querySelector('button'),
       formContainer: document.querySelector('.jumbotron'),
+      feeds: document.getElementsByClassName('rss-feeds')[0],
+      posts: document.getElementsByClassName('rss-posts')[0],
     },
   };
 
@@ -89,6 +92,10 @@ export default () => {
 
         const feed = { ...rest, id: _.uniqueId(), link: url };
         const posts = items.map((item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }));
+
+        if (state.feeds.length === 0) {
+          state.activeFeedId = feed.id;
+        }
 
         state.feeds = [...state.feeds, feed];
         state.posts = [...state.posts, ...posts];
