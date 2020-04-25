@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
@@ -70,7 +71,17 @@ export default () => {
 
     axios.get(state.form.data)
       .then((response) => {
-        parse(response.data);
+        const { items, ...feedData } = parse(response.data);
+
+        const feedId = _.uniqueId();
+        const identifiedFeedData = { ...feedData, id: feedId };
+        const identifiedPosts = items.map(
+          (item) => ({ ...item, id: _.uniqueId(), feedId }),
+        );
+
+        state.feeds = [...state.feeds, identifiedFeedData];
+        state.posts = [...state.posts, identifiedPosts];
+
         state.form.processState = 'finished';
         state.form.messageType = 'success';
       })

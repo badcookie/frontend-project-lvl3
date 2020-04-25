@@ -1,16 +1,22 @@
-const parser = new DOMParser();
+const getTagValue = (parentNode, tag) => parentNode.querySelector(tag).textContent;
 
-export default (xml) => {
-  const document = parser.parseFromString(xml, 'text/xml');
-  const title = document.querySelector('title').textContent;
-  const description = document.querySelector('description').textContent;
+const domParser = new DOMParser();
 
-  const nodes = document.querySelectorAll('item');
+export default (xml, parser = domParser) => {
+  const dom = parser.parseFromString(xml, 'text/xml');
+
+  const title = getTagValue(dom, 'title');
+  const description = getTagValue(dom, 'description');
+  const link = getTagValue(dom, 'link');
+
+  const nodes = dom.querySelectorAll('item');
   const items = Array.from(nodes).map((item) => {
-    const itemTitle = item.querySelector('title').textContent;
-    const link = item.querySelector('link').textContent;
-    return { title: itemTitle, link };
+    const itemTitle = getTagValue(item, 'title');
+    const itemLink = getTagValue(item, 'link');
+    return { title: itemTitle, link: itemLink };
   });
 
-  return { title, description, items };
+  return {
+    title, description, link, items,
+  };
 };
