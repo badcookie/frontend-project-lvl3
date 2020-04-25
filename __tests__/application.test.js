@@ -17,36 +17,38 @@ const getTree = () => html(document.body.innerHTML, htmlOptions);
 
 let elements;
 
-beforeEach(() => {
-  const initHtml = fs.readFileSync(path.join(fixturesPath, 'index.html')).toString();
-  document.documentElement.innerHTML = initHtml;
-  run();
+describe('ui', () => {
+  beforeEach(() => {
+    const initHtml = fs.readFileSync(path.join(fixturesPath, 'index.html')).toString();
+    document.documentElement.innerHTML = initHtml;
+    run();
 
-  elements = {
-    form: document.querySelector('form'),
-    input: document.querySelector('input'),
-    button: document.querySelector('button'),
-  };
-});
+    elements = {
+      form: document.querySelector('form'),
+      input: document.querySelector('input'),
+      button: document.querySelector('button'),
+    };
+  });
 
-test('passing invalid url', async () => {
-  expect(getTree()).toMatchSnapshot();
+  test('passing invalid url', async () => {
+    expect(getTree()).toMatchSnapshot();
 
-  await userEvent.type(elements.input, 'invalid url', { allAtOnce: true });
-  elements.input.setAttribute('value', 'invalid url');
+    await userEvent.type(elements.input, 'invalid url', { allAtOnce: true });
+    elements.input.setAttribute('value', 'invalid url');
 
-  await timer.start(10);
-  expect(getTree()).toMatchSnapshot();
+    await timer.start(10);
+    expect(getTree()).toMatchSnapshot();
 
-  elements.form.submit();
-  await timer.start(10);
+    elements.form.submit();
+    await timer.start(10);
 
-  expect(getTree()).toMatchSnapshot();
-});
+    expect(getTree()).toMatchSnapshot();
+  });
 
-test('passing empty url', async () => {
-  elements.form.submit();
-  await timer.start(10);
+  test('passing empty url', async () => {
+    elements.form.submit();
+    await timer.start(10);
 
-  expect(getTree()).toMatchSnapshot();
+    expect(getTree()).toMatchSnapshot();
+  });
 });
