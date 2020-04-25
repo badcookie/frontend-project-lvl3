@@ -55,17 +55,21 @@ export default () => {
     },
     feeds: [],
     posts: [],
+    elements: {
+      input: document.querySelector('input'),
+      form: document.querySelector('form'),
+      submit: document.querySelector('button'),
+      formContainer: document.querySelector('.jumbotron'),
+    },
   };
 
-  const inputField = document.querySelector('input');
-  inputField.addEventListener('input', ({ target }) => {
+  state.elements.input.addEventListener('input', ({ target }) => {
     state.form.data = target.value;
     state.form.processState = 'filling';
     validate(state);
   });
 
-  const form = document.querySelector('form');
-  form.addEventListener('submit', (event) => {
+  state.elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
 
     if (!state.form.isValid) {
@@ -84,9 +88,7 @@ export default () => {
         const { items, ...rest } = parse(response.data);
 
         const feed = { ...rest, id: _.uniqueId(), link: url };
-        const posts = items.map(
-          (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
-        );
+        const posts = items.map((item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }));
 
         state.feeds = [...state.feeds, feed];
         state.posts = [...state.posts, ...posts];

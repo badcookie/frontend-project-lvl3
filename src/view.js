@@ -4,11 +4,8 @@ import { watch } from 'melanke-watchjs';
 
 export default (state) => {
   watch(state.form, 'processState', () => {
-    const { form: { processState } } = state;
-
-    const submitButton = document.querySelector('button');
-    const inputField = document.querySelector('input');
-    const formContainer = document.querySelector('.jumbotron');
+    const { form: { processState }, elements } = state;
+    const { formContainer, submit, input } = elements;
 
     const existingFeedback = formContainer.querySelector('.feedback');
     if (existingFeedback) {
@@ -20,7 +17,7 @@ export default (state) => {
         break;
       }
       case 'sending': {
-        submitButton.disabled = true;
+        submit.disabled = true;
         break;
       }
       case 'failed': {
@@ -30,9 +27,9 @@ export default (state) => {
         feedbackElement.classList.add('feedback', 'text-danger');
         feedbackElement.textContent = infoMessage;
         formContainer.appendChild(feedbackElement);
-        inputField.style.borderColor = 'red';
-        submitButton.disabled = false;
-        submitButton.blur();
+        input.style.borderColor = 'red';
+        submit.disabled = false;
+        submit.blur();
         break;
       }
       case 'finished': {
@@ -41,10 +38,10 @@ export default (state) => {
         feedbackElement.classList.add('feedback', 'text-success');
         feedbackElement.textContent = infoMessage;
         formContainer.appendChild(feedbackElement);
-        inputField.value = '';
-        inputField.style.removeProperty('border');
-        submitButton.disabled = false;
-        submitButton.blur();
+        input.value = '';
+        input.style.removeProperty('border');
+        submit.disabled = false;
+        submit.blur();
         break;
       }
       default: {
