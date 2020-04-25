@@ -10,10 +10,13 @@ import resources from './locales';
 /* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
 
+const buildRSSUrl = (rssUrl) => `https://cors-anywhere.herokuapp.com/${rssUrl}`;
+
 yup.addMethod(yup.string, 'notAdded', function () {
   return this.test('notAdded', function (url) {
     const { path, createError, options } = this;
     const { context: { state } } = options;
+    // TODO: normalize
     const feedExists = state.feeds.find(({ link }) => url === link);
     return feedExists ? createError({ path }) : true;
   });
@@ -69,21 +72,24 @@ export default () => {
 
     state.form.processState = 'sending';
 
-    axios.get(state.form.data)
+    // TODO: mock
+    const url = buildRSSUrl(state.form.data);
+    axios.get(url)
       .then((response) => {
-        const { items, ...feedData } = parse(response.data);
+        const { items, ...rest } = parse(response.data);
 
-        const feedId = _.uniqueId();
-        const identifiedFeedData = { ...feedData, id: feedId };
-        const identifiedPosts = items.map(
-          (item) => ({ ...item, id: _.uniqueId(), feedId }),
+        const feed = { ...rest, id: _.uniqueId(), link: state.form.data };
+        const posts = items.map(
+          (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
         );
 
-        state.feeds = [...state.feeds, identifiedFeedData];
-        state.posts = [...state.posts, ...identifiedPosts];
+        state.feeds = [...state.feeds, feed];
+        state.posts = [...state.posts, ...posts];
 
         state.form.processState = 'finished';
         state.form.messageType = 'success';
+
+        console.log(state);
       })
       .catch((error) => {
         const { response: { status, data } } = error;

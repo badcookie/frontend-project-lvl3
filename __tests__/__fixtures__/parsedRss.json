@@ -1,7 +1,6 @@
 {
     "title": "Lorem ipsum feed",
     "description": "This is a constantly updating lorem ipsum feed",
-    "link": "http://example.com/",
     "items":[
         {
             "title": "Lorem ipsum 2020-04-25T19:44:00Z",

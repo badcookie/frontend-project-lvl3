@@ -2,13 +2,12 @@ const getTagValue = (parentNode, tag) => parentNode.querySelector(tag).textConte
 
 const domParser = new DOMParser();
 
-// is it pure?
+// TODO: is it pure?
 export default (xml, parser = domParser) => {
   const dom = parser.parseFromString(xml, 'text/xml');
 
   const title = getTagValue(dom, 'title');
   const description = getTagValue(dom, 'description');
-  const link = getTagValue(dom, 'link');
 
   const nodes = dom.querySelectorAll('item');
   const items = Array.from(nodes).map((item) => {
@@ -17,7 +16,5 @@ export default (xml, parser = domParser) => {
     return { title: itemTitle, link: itemLink };
   });
 
-  return {
-    title, description, link, items,
-  };
+  return { title, description, items };
 };
