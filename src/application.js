@@ -10,14 +10,17 @@ import resources from './locales';
 /* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
 
+const normalize = (url) => url.replace(/\/+$/, '');
+
 const buildRSSUrl = (rssUrl) => `https://cors-anywhere.herokuapp.com/${rssUrl}`;
 
 yup.addMethod(yup.string, 'notAdded', function () {
   return this.test('notAdded', function (url) {
     const { path, createError, options } = this;
     const { context: { state } } = options;
-    // TODO: normalize
-    const feedExists = state.feeds.find(({ link }) => url === link);
+
+    const normalizedUrl = normalize(url);
+    const feedExists = state.feeds.find(({ link }) => link === normalizedUrl);
     return feedExists ? createError({ path }) : true;
   });
 });
@@ -73,12 +76,14 @@ export default () => {
     state.form.processState = 'sending';
 
     // TODO: mock
-    const url = buildRSSUrl(state.form.data);
-    axios.get(url)
+    const url = normalize(state.form.data);
+    const proxyUrl = buildRSSUrl(url);
+
+    axios.get(proxyUrl)
       .then((response) => {
         const { items, ...rest } = parse(response.data);
 
-        const feed = { ...rest, id: _.uniqueId(), link: state.form.data };
+        const feed = { ...rest, id: _.uniqueId(), link: url };
         const posts = items.map(
           (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
         );
