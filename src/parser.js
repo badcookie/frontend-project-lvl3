@@ -1,9 +1,8 @@
 const getTagValue = (parentNode, tag) => parentNode.querySelector(tag).textContent;
 
-const domParser = new DOMParser();
 
-// TODO: is it pure?
-export default (xml, parser = domParser) => {
+export default (xml) => {
+  const parser = new DOMParser();
   const dom = parser.parseFromString(xml, 'text/xml');
 
   const title = getTagValue(dom, 'title');
