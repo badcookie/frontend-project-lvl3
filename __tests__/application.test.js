@@ -6,6 +6,7 @@ import { html } from 'js-beautify';
 import userEvent from '@testing-library/user-event';
 
 import run from '../src/application';
+import parse from '../src/parser';
 
 const htmlOptions = {
   preserve_newlines: true,
@@ -13,13 +14,19 @@ const htmlOptions = {
 };
 
 const fixturesPath = path.join(__dirname, '__fixtures__');
+
+const readFixture = (filename) => {
+  const filepath = path.join(fixturesPath, filename);
+  return fs.readFileSync(filepath).toString();
+};
+
 const getTree = () => html(document.body.innerHTML, htmlOptions);
 
 let elements;
 
 describe('ui', () => {
   beforeEach(() => {
-    const initHtml = fs.readFileSync(path.join(fixturesPath, 'index.html')).toString();
+    const initHtml = readFixture('index.html');
     document.documentElement.innerHTML = initHtml;
     run();
 
@@ -51,4 +58,12 @@ describe('ui', () => {
 
     expect(getTree()).toMatchSnapshot();
   });
+});
+
+test('parser', () => {
+  const rawRss = readFixture('rawRss.xml');
+  const parsedRss = readFixture('parsedRss.json');
+  const expected = JSON.parse(parsedRss);
+  const actual = parse(rawRss);
+  expect(actual).toEqual(expected);
 });
