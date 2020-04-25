@@ -82,7 +82,7 @@ export default () => {
         );
 
         state.feeds = [...state.feeds, identifiedFeedData];
-        state.posts = [...state.posts, identifiedPosts];
+        state.posts = [...state.posts, ...identifiedPosts];
 
         state.form.processState = 'finished';
         state.form.messageType = 'success';
