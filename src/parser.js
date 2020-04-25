@@ -2,14 +2,15 @@ const parser = new DOMParser();
 
 export default (xml) => {
   const document = parser.parseFromString(xml, 'text/xml');
-  const feedTitle = document.querySelector('title').textContent;
+  const title = document.querySelector('title').textContent;
+  const description = document.querySelector('description').textContent;
 
   const nodes = document.querySelectorAll('item');
   const items = Array.from(nodes).map((item) => {
-    const title = item.querySelector('title').textContent;
+    const itemTitle = item.querySelector('title').textContent;
     const link = item.querySelector('link').textContent;
-    return { title, link };
+    return { title: itemTitle, link };
   });
 
-  return { title: feedTitle, items };
+  return { title, description, items };
 };
