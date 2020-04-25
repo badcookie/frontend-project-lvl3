@@ -17,7 +17,6 @@ export default (state) => {
 
     switch (processState) {
       case 'filling': {
-        submitButton.disabled = false;
         break;
       }
       case 'sending': {
@@ -32,6 +31,8 @@ export default (state) => {
         feedbackElement.textContent = infoMessage;
         formContainer.appendChild(feedbackElement);
         inputField.style.borderColor = 'red';
+        submitButton.disabled = false;
+        submitButton.blur();
         break;
       }
       case 'finished': {
@@ -42,6 +43,8 @@ export default (state) => {
         formContainer.appendChild(feedbackElement);
         inputField.value = '';
         inputField.style.removeProperty('border');
+        submitButton.disabled = false;
+        submitButton.blur();
         break;
       }
       default: {
