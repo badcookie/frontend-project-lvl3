@@ -31,7 +31,6 @@ const showRSSFeeds = (state) => {
       link.addEventListener('click', (event) => {
         event.preventDefault();
         state.activeFeedId = feed.id;
-        console.log(state);
       });
     } else {
       const titleElement = document.createElement('b');
@@ -60,11 +59,6 @@ const showRSSFeeds = (state) => {
 
     posts.appendChild(postContainer);
   });
-
-  const rssContainer = feeds.parentNode;
-  rssContainer.innerHtml = '';
-  rssContainer.appendChild(feeds);
-  rssContainer.appendChild(posts);
 };
 
 export default (state) => {

@@ -82,11 +82,10 @@ export default () => {
 
     state.form.processState = 'sending';
 
-    // TODO: mock
     const url = normalize(state.form.data);
     const proxyUrl = buildRSSUrl(url);
 
-    axios.get(url)
+    axios.get(proxyUrl)
       .then((response) => {
         const { items, ...rest } = parse(response.data);
 
@@ -102,8 +101,6 @@ export default () => {
 
         state.form.processState = 'finished';
         state.form.messageType = 'success';
-
-        console.log(state);
       })
       .catch((error) => {
         const { response: { status, data } } = error;

@@ -1,11 +1,13 @@
 import fs from 'fs';
 import path from 'path';
-// import nock from 'nock';
+import nock from 'nock';
 import timer from 'timer-promise';
 import { html } from 'js-beautify';
 import userEvent from '@testing-library/user-event';
 
 import run from '../src/application';
+
+nock.disableNetConnect();
 
 const htmlOptions = {
   preserve_newlines: true,
@@ -57,6 +59,29 @@ describe('ui', () => {
 
     expect(getTree()).toMatchSnapshot();
   });
-});
 
-// TODO: valid url rss rendering & invalid input
+  test('valid url', async () => {
+    const validUrl = 'https://www.example.com/rss.xml';
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com';
+    const responseRss = readFixture('rss.xml');
+
+    nock(proxyUrl)
+      .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+      .get(`/${validUrl}`)
+      .reply(200, responseRss);
+
+    await userEvent.type(elements.input, validUrl, { allAtOnce: true });
+    elements.input.setAttribute('value', validUrl);
+
+    await timer.start(10);
+    elements.form.submit();
+
+    await timer.start(10);
+    await timer.start(10);
+    await timer.start(10);
+    await timer.start(10);
+    await timer.start(10);
+
+    expect(getTree()).toMatchSnapshot();
+  });
+});
