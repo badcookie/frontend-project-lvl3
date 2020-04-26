@@ -61,8 +61,8 @@ export default () => {
       form: document.querySelector('form'),
       submit: document.querySelector('button'),
       formContainer: document.querySelector('.jumbotron'),
-      feeds: document.getElementsByClassName('rss-feeds')[0],
-      posts: document.getElementsByClassName('rss-posts')[0],
+      feeds: document.querySelector('.rss-feeds'),
+      posts: document.querySelector('.rss-posts'),
     },
   };
 
@@ -86,7 +86,7 @@ export default () => {
     const url = normalize(state.form.data);
     const proxyUrl = buildRSSUrl(url);
 
-    axios.get(proxyUrl)
+    axios.get(url)
       .then((response) => {
         const { items, ...rest } = parse(response.data);
 

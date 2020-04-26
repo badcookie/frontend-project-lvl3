@@ -7,12 +7,15 @@ const showRSSFeeds = (state) => {
   const { activeFeedId } = state;
   const { elements: { feeds, posts } } = state;
 
-  feeds.innerHtml = '';
-  posts.innerHtml = '';
+  feeds.innerHTML = '';
+  posts.innerHTML = '';
+
+  const feedsList = document.createElement('ul');
 
   state.feeds.forEach((feed) => {
     const { title, description, id } = feed;
 
+    const feedItem = document.createElement('li');
     const feedContainer = document.createElement('div');
 
     const descriptionElement = document.createElement('p');
@@ -28,18 +31,19 @@ const showRSSFeeds = (state) => {
       link.addEventListener('click', (event) => {
         event.preventDefault();
         state.activeFeedId = feed.id;
+        console.log(state);
       });
     } else {
-      const titleElement = document.createElement('p');
+      const titleElement = document.createElement('b');
       titleElement.textContent = title;
-      titleElement.style.fontWeight = 'bold';
-
       feedContainer.appendChild(titleElement);
     }
 
     feedContainer.appendChild(descriptionElement);
-    feeds.appendChild(feedContainer);
+    feedItem.appendChild(feedContainer);
+    feedsList.appendChild(feedItem);
   });
+  feeds.appendChild(feedsList);
 
   const activePosts = state.posts.filter(({ feedId }) => feedId === activeFeedId);
   activePosts.forEach((post) => {
@@ -56,9 +60,18 @@ const showRSSFeeds = (state) => {
 
     posts.appendChild(postContainer);
   });
+
+  const rssContainer = feeds.parentNode;
+  rssContainer.innerHtml = '';
+  rssContainer.appendChild(feeds);
+  rssContainer.appendChild(posts);
 };
 
 export default (state) => {
+  watch(state, 'activeFeedId', () => {
+    showRSSFeeds(state);
+  });
+
   watch(state.form, 'processState', () => {
     const { form: { processState }, elements } = state;
     const { formContainer, submit, input } = elements;
