@@ -102,7 +102,7 @@ exports[`ui valid url 1`] = `
         <p class=\\"text-muted\\">https://ru.hexlet.io/lessons.rss</p>
         <form class=\\"form-inline rss-form\\">
             <div class=\\"form-group\\">
-                <input type=\\"text\\" name=\\"url\\" class=\\"form-control\\" placeholder=\\"RSS link\\" value=\\"https://www.example.com/rss.xml\\">
+                <input type=\\"text\\" name=\\"url\\" class=\\"form-control\\" placeholder=\\"RSS link\\" value=\\"https://www.example.com/rss1.xml\\">
             </div>
             <button type=\\"submit\\" class=\\"btn btn-primary ml-1\\">Add</button>
         </form>

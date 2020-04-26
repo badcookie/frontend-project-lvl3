@@ -61,17 +61,26 @@ describe('ui', () => {
   });
 
   test('valid url', async () => {
-    const validUrl = 'https://www.example.com/rss.xml';
     const proxyUrl = 'https://cors-anywhere.herokuapp.com';
-    const responseRss = readFixture('rss.xml');
+
+    const firstValidUrl = 'https://www.example.com/rss1.xml';
+    const firstResponseRss = readFixture('rss1.xml');
+
+    const secondValidUrl = 'https://www.example.com/rss2.xml';
+    const secondResponseRss = readFixture('rss2.xml');
 
     nock(proxyUrl)
       .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
-      .get(`/${validUrl}`)
-      .reply(200, responseRss);
+      .get(`/${firstValidUrl}`)
+      .reply(200, firstResponseRss);
 
-    await userEvent.type(elements.input, validUrl, { allAtOnce: true });
-    elements.input.setAttribute('value', validUrl);
+    nock(proxyUrl)
+      .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+      .get(`/${secondValidUrl}`)
+      .reply(200, secondResponseRss);
+
+    await userEvent.type(elements.input, firstValidUrl, { allAtOnce: true });
+    elements.input.setAttribute('value', firstValidUrl);
 
     await timer.start(10);
     elements.form.submit();
@@ -83,5 +92,19 @@ describe('ui', () => {
     await timer.start(10);
 
     expect(getTree()).toMatchSnapshot();
+
+    // await userEvent.type(elements.input, secondValidUrl, { allAtOnce: true });
+    // elements.input.setAttribute('value', secondValidUrl);
+
+    // await timer.start(10);
+    // elements.form.submit();
+
+    // await timer.start(10);
+    // await timer.start(10);
+    // await timer.start(10);
+    // await timer.start(10);
+    // await timer.start(10);
+
+    // expect(getTree()).toMatchSnapshot();
   });
 });
