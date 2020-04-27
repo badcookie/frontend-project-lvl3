@@ -114,9 +114,10 @@ describe('ui', () => {
 
     expect(getTree()).toMatchSnapshot();
 
-    // const feedLink = elements.feeds.querySelector('a');
-    // await userEvent.click(feedLink);
+    const feedLink = elements.feeds.querySelector('a');
+    await userEvent.click(feedLink);
 
-    // expect(getTree()).toMatchSnapshot();
+    await timer.start(10);
+    expect(getTree()).toMatchSnapshot();
   });
 });
