@@ -35,6 +35,7 @@ describe('ui', () => {
       form: document.querySelector('form'),
       input: document.querySelector('input'),
       button: document.querySelector('button'),
+      feeds: document.querySelector('.rss-feeds'),
     };
   });
 
@@ -89,21 +90,32 @@ describe('ui', () => {
     await timer.start(10);
     await timer.start(10);
     await timer.start(10);
+
+    expect(getTree()).toMatchSnapshot();
+
+    await timer.start(10);
+
+    await userEvent.type(elements.input, '', { allAtOnce: true });
+    elements.input.setAttribute('value', '');
+
+    await timer.start(10);
+    expect(getTree()).toMatchSnapshot();
+
+    await userEvent.type(elements.input, secondValidUrl, { allAtOnce: true });
+    elements.input.setAttribute('value', secondValidUrl);
+
+    await timer.start(10);
+    elements.form.submit();
+
+    await timer.start(10);
+    await timer.start(10);
+    await timer.start(10);
     await timer.start(10);
 
     expect(getTree()).toMatchSnapshot();
 
-    // await userEvent.type(elements.input, secondValidUrl, { allAtOnce: true });
-    // elements.input.setAttribute('value', secondValidUrl);
-
-    // await timer.start(10);
-    // elements.form.submit();
-
-    // await timer.start(10);
-    // await timer.start(10);
-    // await timer.start(10);
-    // await timer.start(10);
-    // await timer.start(10);
+    // const feedLink = elements.feeds.querySelector('a');
+    // await userEvent.click(feedLink);
 
     // expect(getTree()).toMatchSnapshot();
   });

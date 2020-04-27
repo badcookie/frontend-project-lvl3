@@ -1,6 +1,6 @@
 <rss version="2.0">
   <channel>
-    <title>Lorem ipsum feed</title>
+    <title>First lorem ipsum feed</title>
     <description>This is a constantly updating lorem ipsum feed</description>
     <link>http://example.com/</link>
     <generator>RSS for Node</generator>
@@ -11,14 +11,14 @@
     </copyright>
     <ttl>1</ttl>
     <item>
-      <title>Lorem ipsum 2020-04-25T19:44:00Z</title>
+      <title>First post of 1st RSS</title>
       <description>Laborum reprehenderit excepteur dolor elit.</description>
       <link>http://example.com/test/1587843840</link>
       <guid isPermaLink="true">http://example.com/test/1587843840</guid>
       <pubDate>Sat, 25 Apr 2020 19:44:00 GMT</pubDate>
     </item>
     <item>
-      <title>Lorem ipsum 2020-04-25T19:43:00Z</title>
+      <title>Second post of 1st RSS</title>
       <description>
       Commodo cupidatat eiusmod officia cupidatat sit quis culpa nostrud magna veniam pariatur.
       </description>
@@ -27,21 +27,21 @@
       <pubDate>Sat, 25 Apr 2020 19:43:00 GMT</pubDate>
     </item>
     <item>
-      <title>Lorem ipsum 2020-04-25T19:42:00Z</title>
+      <title>Third post of 1st RSS</title>
       <description>Dolor magna ad eiusmod non.</description>
       <link>http://example.com/test/1587843720</link>
       <guid isPermaLink="true">http://example.com/test/1587843720</guid>
       <pubDate>Sat, 25 Apr 2020 19:42:00 GMT</pubDate>
     </item>
     <item>
-      <title>Lorem ipsum 2020-04-25T19:41:00Z</title>
+      <title>Fourth post of 1st RSS</title>
       <description>Aute magna fugiat culpa ad consequat esse.</description>
       <link>http://example.com/test/1587843660</link>
       <guid isPermaLink="true">http://example.com/test/1587843660</guid>
       <pubDate>Sat, 25 Apr 2020 19:41:00 GMT</pubDate>
     </item>
     <item>
-      <title>Lorem ipsum 2020-04-25T19:40:00Z</title>
+      <title>Fifth post of 1st RSS</title>
       <description>Est consequat consectetur cupidatat deserunt.</description>
       <link>http://example.com/test/1587843600</link>
       <guid isPermaLink="true">http://example.com/test/1587843600</guid>
