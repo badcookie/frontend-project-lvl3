@@ -9,6 +9,7 @@ export const formMessageTypes = Object.freeze({
   network: 'network',
   success: 'success',
   urlRequired: 'required',
+  parsing: 'parsing',
 });
 
 export const feedUpdateIntervalMs = 5 * 1000;

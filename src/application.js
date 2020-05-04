@@ -17,7 +17,9 @@ const {
   filling, sending, failed, finished,
 } = formProcessStates;
 
-const { network, success, urlRequired } = formMessageTypes;
+const {
+  network, success, urlRequired, parsing,
+} = formMessageTypes;
 
 
 const normalize = (url) => url.replace(/\/+$/, '');
@@ -142,7 +144,11 @@ export default () => {
         state.form.messageContext = { status, data };
         throw error;
       }).then((response) => parse(response.data))
-      .catch(console.log)
+      .catch((error) => {
+        state.form.processState = failed;
+        state.form.messageType = parsing;
+        throw error;
+      })
       .then((feedData) => {
         const { items, ...remainingFeedData } = feedData;
 

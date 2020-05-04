@@ -7,6 +7,7 @@ export default {
         notAdded: 'URL was already added',
         url: 'Invalid URL',
         success: 'RSS has been loaded',
+        parsing: 'Parsing error',
       },
     },
   },
