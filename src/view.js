@@ -91,6 +91,7 @@ export default (state) => {
 
     switch (processState) {
       case filling: {
+        submit.disabled = false;
         break;
       }
       case sending: {
@@ -106,7 +107,7 @@ export default (state) => {
         formContainer.appendChild(feedbackElement);
 
         input.style.borderColor = 'red';
-        submit.disabled = false;
+        submit.disabled = true;
         submit.blur();
         break;
       }
@@ -119,7 +120,6 @@ export default (state) => {
 
         input.value = '';
         input.style.removeProperty('border');
-        submit.disabled = false;
         submit.blur();
 
         renderFeeds(state);
