@@ -4,7 +4,6 @@ const getTagValue = (parentNode, tag) => parentNode.querySelector(tag).textConte
 export default (xml) => {
   const parser = new DOMParser();
   const dom = parser.parseFromString(xml, 'text/xml');
-  console.log(dom);
 
   const title = getTagValue(dom, 'title');
   const description = getTagValue(dom, 'description');
