@@ -10,9 +10,43 @@ import resources from './locales';
 /* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
 
+const updateIntervalMs = 5 * 1000;
+
 const normalize = (url) => url.replace(/\/+$/, '');
 
-const buildRSSUrl = (rssUrl) => `https://cors-anywhere.herokuapp.com/${rssUrl}`;
+const buildProxyUrl = (url) => `https://cors-anywhere.herokuapp.com/${url}`;
+
+const checkForUpdates = (state) => () => {
+  const { feeds, activeFeedId } = state;
+
+  const tasks = feeds.map((feed) => {
+    const proxyUrl = buildProxyUrl(feed.link);
+    return axios.get(proxyUrl).then((response) => {
+      const newFeedData = parse(response.data);
+
+      const newItems = newFeedData.items.filter((item) => item.pubDate > feed.pubDate);
+      if (newItems.length === 0) {
+        return;
+      }
+
+      const newPosts = newItems.map(
+        (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
+      );
+
+      state.posts = [...newPosts, ...state.posts];
+      feed.pubDate = newFeedData.pubDate;
+
+      if (feed.id === activeFeedId) {
+        state.shouldUpdateActiveFeed = true;
+      }
+    });
+  });
+
+  Promise.all(tasks).finally(() => {
+    setTimeout(checkForUpdates(state), updateIntervalMs);
+    state.shouldUpdateActiveFeed = false;
+  });
+};
 
 yup.addMethod(yup.string, 'notAdded', function () {
   return this.test('notAdded', function (url) {
@@ -56,6 +90,7 @@ export default () => {
     feeds: [],
     posts: [],
     activeFeedId: null,
+    shouldUpdateActiveFeed: false,
     elements: {
       input: document.querySelector('input'),
       form: document.querySelector('form'),
@@ -83,7 +118,7 @@ export default () => {
     state.form.processState = 'sending';
 
     const url = normalize(state.form.data);
-    const proxyUrl = buildRSSUrl(url);
+    const proxyUrl = buildProxyUrl(url);
 
     axios.get(proxyUrl)
       .then((response) => {
@@ -114,4 +149,6 @@ export default () => {
   render(state);
 
   i18next.init({ lng: 'en', resources });
+
+  setTimeout(checkForUpdates(state), updateIntervalMs);
 };

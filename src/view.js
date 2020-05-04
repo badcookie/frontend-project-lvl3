@@ -62,6 +62,10 @@ const showRSSFeeds = (state) => {
 };
 
 export default (state) => {
+  watch(state, 'shouldUpdateActiveFeed', () => {
+    showRSSFeeds(state);
+  });
+
   watch(state, 'activeFeedId', () => {
     showRSSFeeds(state);
   });
