@@ -135,8 +135,16 @@ export default () => {
     const proxyUrl = buildProxyUrl(url);
 
     axios.get(proxyUrl)
-      .then((response) => {
-        const { items, ...remainingFeedData } = parse(response.data);
+      .catch((error) => {
+        const { response: { status, data } } = error;
+        state.form.processState = failed;
+        state.form.messageType = network;
+        state.form.messageContext = { status, data };
+        throw error;
+      }).then((response) => parse(response.data))
+      .catch(console.log)
+      .then((feedData) => {
+        const { items, ...remainingFeedData } = feedData;
 
         const feed = { ...remainingFeedData, id: _.uniqueId(), link: url };
         const posts = items.map((item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }));
@@ -150,13 +158,6 @@ export default () => {
 
         state.form.processState = finished;
         state.form.messageType = success;
-      })
-      .catch((error) => {
-        const { response: { status, data } } = error;
-        state.form.processState = failed;
-        state.form.messageType = network;
-        state.form.messageContext = { status, data };
-        throw error;
       });
   });
 

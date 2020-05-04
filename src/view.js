@@ -100,10 +100,10 @@ export default (state) => {
       }
       case failed: {
         const { form: { messageType, messageContext } } = state;
-        const infoMessage = i18next.t(`messages.${messageType}`, messageContext);
+        const formMessage = i18next.t(`messages.${messageType}`, messageContext);
         const feedbackElement = document.createElement('div');
         feedbackElement.classList.add('feedback', 'text-danger');
-        feedbackElement.textContent = infoMessage;
+        feedbackElement.textContent = formMessage;
         formContainer.appendChild(feedbackElement);
 
         input.style.borderColor = 'red';
@@ -112,10 +112,10 @@ export default (state) => {
         break;
       }
       case finished: {
-        const infoMessage = i18next.t(`messages.${state.form.messageType}`);
+        const formMessage = i18next.t(`messages.${state.form.messageType}`);
         const feedbackElement = document.createElement('div');
         feedbackElement.classList.add('feedback', 'text-success');
-        feedbackElement.textContent = infoMessage;
+        feedbackElement.textContent = formMessage;
         formContainer.appendChild(feedbackElement);
 
         input.value = '';
