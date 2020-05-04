@@ -6,15 +6,18 @@ import i18next from 'i18next';
 import render from './view';
 import parse from './parser';
 import resources from './locales';
+import { feedUpdateIntervalMs, formProcessStates, proxyAddress } from './consts';
 
 /* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
 
-const updateIntervalMs = 5 * 1000;
+const {
+  filling, sending, failed, finished,
+} = formProcessStates;
 
 const normalize = (url) => url.replace(/\/+$/, '');
 
-const buildProxyUrl = (url) => `https://cors-anywhere.herokuapp.com/${url}`;
+const buildProxyUrl = (url) => `${proxyAddress}/${url}`;
 
 const checkForUpdates = (state) => () => {
   const { feeds, activeFeedId } = state;
@@ -43,7 +46,7 @@ const checkForUpdates = (state) => () => {
   });
 
   Promise.all(tasks).finally(() => {
-    setTimeout(checkForUpdates(state), updateIntervalMs);
+    setTimeout(checkForUpdates(state), feedUpdateIntervalMs);
     state.shouldUpdateActiveFeed = false;
   });
 };
@@ -85,7 +88,7 @@ export default () => {
       isValid: false,
       messageType: 'required',
       messageContext: {},
-      processState: 'filling',
+      processState: filling,
     },
     feeds: [],
     posts: [],
@@ -103,7 +106,7 @@ export default () => {
 
   state.elements.input.addEventListener('input', ({ target }) => {
     state.form.data = target.value;
-    state.form.processState = 'filling';
+    state.form.processState = filling;
     validate(state);
   });
 
@@ -111,20 +114,20 @@ export default () => {
     event.preventDefault();
 
     if (!state.form.isValid) {
-      state.form.processState = 'failed';
+      state.form.processState = failed;
       return;
     }
 
-    state.form.processState = 'sending';
+    state.form.processState = sending;
 
     const url = normalize(state.form.data);
     const proxyUrl = buildProxyUrl(url);
 
     axios.get(proxyUrl)
       .then((response) => {
-        const { items, ...rest } = parse(response.data);
+        const { items, ...remainingFeedData } = parse(response.data);
 
-        const feed = { ...rest, id: _.uniqueId(), link: url };
+        const feed = { ...remainingFeedData, id: _.uniqueId(), link: url };
         const posts = items.map((item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }));
 
         if (state.feeds.length === 0) {
@@ -134,12 +137,12 @@ export default () => {
         state.feeds = [...state.feeds, feed];
         state.posts = [...state.posts, ...posts];
 
-        state.form.processState = 'finished';
+        state.form.processState = finished;
         state.form.messageType = 'success';
       })
       .catch((error) => {
         const { response: { status, data } } = error;
-        state.form.processState = 'failed';
+        state.form.processState = failed;
         state.form.messageType = 'network';
         state.form.messageContext = { status, data };
         throw error;
@@ -150,5 +153,5 @@ export default () => {
 
   i18next.init({ lng: 'en', resources });
 
-  setTimeout(checkForUpdates(state), updateIntervalMs);
+  setTimeout(checkForUpdates(state), feedUpdateIntervalMs);
 };

@@ -6,6 +6,7 @@ import { html } from 'js-beautify';
 import userEvent from '@testing-library/user-event';
 
 import run from '../src/application';
+import { proxyAddress } from '../src/consts';
 
 nock.disableNetConnect();
 
@@ -62,20 +63,18 @@ test('empty url', async () => {
 });
 
 test('valid url', async () => {
-  const proxyUrl = 'https://cors-anywhere.herokuapp.com';
-
   const firstValidUrl = 'https://www.example.com/rss1.xml';
   const firstRssResponse = readFixture('rss1.xml');
 
   const secondValidUrl = 'https://www.example.com/rss2.xml';
   const secondRssResponse = readFixture('rss2.xml');
 
-  nock(proxyUrl)
+  nock(proxyAddress)
     .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
     .get(`/${firstValidUrl}`)
     .reply(200, firstRssResponse);
 
-  nock(proxyUrl)
+  nock(proxyAddress)
     .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
     .get(`/${secondValidUrl}`)
     .reply(200, secondRssResponse);
