@@ -9,53 +9,53 @@ const {
   filling, sending, failed, finished,
 } = formProcessStates;
 
-
-const showRSSFeeds = (state) => {
-  const { activeFeedId } = state;
-  const { elements: { feeds, posts } } = state;
-
+const renderFeeds = (state) => {
+  const { elements: { feeds } } = state;
   feeds.innerHTML = '';
-  posts.innerHTML = '';
 
   const feedsList = document.createElement('ul');
 
   state.feeds.forEach((feed) => {
-    const { title, description, id } = feed;
-
     const feedItem = document.createElement('li');
     const feedContainer = document.createElement('div');
 
     const descriptionElement = document.createElement('p');
-    descriptionElement.textContent = description;
+    descriptionElement.textContent = feed.description;
     descriptionElement.style.fontSize = '14px';
 
-    if (id !== activeFeedId) {
-      const link = document.createElement('a');
-      link.href = '#';
-      link.textContent = title;
-      feedContainer.appendChild(link);
+    const titleTag = feed.id === state.activeFeedId ? 'b' : 'a';
+    const titleElement = document.createElement(titleTag);
+    titleElement.textContent = feed.title;
 
-      link.addEventListener('click', (event) => {
+    if (feed.id !== state.activeFeedId) {
+      titleElement.href = '#';
+      titleElement.addEventListener('click', (event) => {
         event.preventDefault();
         state.activeFeedId = feed.id;
       });
-    } else {
-      const titleElement = document.createElement('b');
-      titleElement.textContent = title;
-      feedContainer.appendChild(titleElement);
     }
 
+    feedContainer.appendChild(titleElement);
     feedContainer.appendChild(descriptionElement);
+
     feedItem.appendChild(feedContainer);
     feedsList.appendChild(feedItem);
   });
+
   feeds.appendChild(feedsList);
+};
 
-  const activePosts = state.posts.filter(({ feedId }) => feedId === activeFeedId);
-  activePosts.forEach((post) => {
-    const { link, title } = post;
+const renderPosts = (state) => {
+  const { elements: { posts } } = state;
+  posts.innerHTML = '';
 
+  const activePosts = state.posts.filter(
+    ({ feedId }) => feedId === state.activeFeedId,
+  );
+
+  activePosts.forEach(({ link, title }) => {
     const postContainer = document.createElement('div');
+
     const linkElement = document.createElement('a');
     linkElement.href = link;
     linkElement.textContent = title;
@@ -71,12 +71,13 @@ const showRSSFeeds = (state) => {
 export default (state) => {
   watch(state, 'shouldUpdateActiveFeed', () => {
     if (state.shouldUpdateActiveFeed) {
-      showRSSFeeds(state);
+      renderPosts(state);
     }
   });
 
   watch(state, 'activeFeedId', () => {
-    showRSSFeeds(state);
+    renderFeeds(state);
+    renderPosts(state);
   });
 
   watch(state.form, 'processState', () => {
@@ -121,7 +122,8 @@ export default (state) => {
         submit.disabled = false;
         submit.blur();
 
-        showRSSFeeds(state);
+        renderFeeds(state);
+        renderPosts(state);
         break;
       }
       default: {
