@@ -6,7 +6,9 @@ import i18next from 'i18next';
 import render from './view';
 import parse from './parser';
 import resources from './locales';
-import { feedUpdateIntervalMs, formProcessStates, proxyAddress } from './consts';
+import {
+  feedUpdateIntervalMs, formProcessStates, proxyAddress, formMessageTypes,
+} from './consts';
 
 /* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
@@ -15,41 +17,13 @@ const {
   filling, sending, failed, finished,
 } = formProcessStates;
 
+const { network, success, urlRequired } = formMessageTypes;
+
+
 const normalize = (url) => url.replace(/\/+$/, '');
 
 const buildProxyUrl = (url) => `${proxyAddress}/${url}`;
 
-const checkForUpdates = (state) => () => {
-  const { feeds, activeFeedId } = state;
-
-  const tasks = feeds.map((feed) => {
-    const proxyUrl = buildProxyUrl(feed.link);
-    return axios.get(proxyUrl).then((response) => {
-      const newFeedData = parse(response.data);
-
-      const newItems = newFeedData.items.filter((item) => item.pubDate > feed.pubDate);
-      if (newItems.length === 0) {
-        return;
-      }
-
-      const newPosts = newItems.map(
-        (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
-      );
-
-      state.posts = [...newPosts, ...state.posts];
-      feed.pubDate = newFeedData.pubDate;
-
-      if (feed.id === activeFeedId) {
-        state.shouldUpdateActiveFeed = true;
-      }
-    });
-  });
-
-  Promise.all(tasks).finally(() => {
-    setTimeout(checkForUpdates(state), feedUpdateIntervalMs);
-    state.shouldUpdateActiveFeed = false;
-  });
-};
 
 yup.addMethod(yup.string, 'notAdded', function () {
   return this.test('notAdded', function (url) {
@@ -66,6 +40,7 @@ const schema = yup.object().shape({
   url: yup.string().required().url().notAdded(),
 });
 
+
 const validate = (state) => {
   const dataToValidate = { url: state.form.data };
   const validationContext = { context: { state } };
@@ -81,12 +56,48 @@ const validate = (state) => {
     });
 };
 
+
+const checkForUpdates = (state) => () => {
+  const { feeds, activeFeedId } = state;
+
+  const tasks = feeds.map((feed) => {
+    const proxyUrl = buildProxyUrl(feed.link);
+    return axios.get(proxyUrl).then((response) => {
+      const updatedFeed = parse(response.data);
+
+      const newItems = updatedFeed.items
+        .filter((item) => item.pubDate > feed.pubDate);
+
+      if (newItems.length === 0) {
+        return;
+      }
+
+      const newPosts = newItems.map(
+        (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
+      );
+
+      state.posts = [...newPosts, ...state.posts];
+      feed.pubDate = updatedFeed.pubDate;
+
+      if (feed.id === activeFeedId) {
+        state.shouldUpdateActiveFeed = true;
+      }
+    });
+  });
+
+  Promise.all(tasks).finally(() => {
+    setTimeout(checkForUpdates(state), feedUpdateIntervalMs);
+    state.shouldUpdateActiveFeed = false;
+  });
+};
+
+
 export default () => {
   const state = {
     form: {
       data: '',
       isValid: false,
-      messageType: 'required',
+      messageType: urlRequired,
       messageContext: {},
       processState: filling,
     },
@@ -138,12 +149,12 @@ export default () => {
         state.posts = [...state.posts, ...posts];
 
         state.form.processState = finished;
-        state.form.messageType = 'success';
+        state.form.messageType = success;
       })
       .catch((error) => {
         const { response: { status, data } } = error;
         state.form.processState = failed;
-        state.form.messageType = 'network';
+        state.form.messageType = network;
         state.form.messageContext = { status, data };
         throw error;
       });

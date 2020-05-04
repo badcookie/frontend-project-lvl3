@@ -9,6 +9,7 @@ const {
   filling, sending, failed, finished,
 } = formProcessStates;
 
+
 const showRSSFeeds = (state) => {
   const { activeFeedId } = state;
   const { elements: { feeds, posts } } = state;
@@ -69,7 +70,9 @@ const showRSSFeeds = (state) => {
 
 export default (state) => {
   watch(state, 'shouldUpdateActiveFeed', () => {
-    showRSSFeeds(state);
+    if (state.shouldUpdateActiveFeed) {
+      showRSSFeeds(state);
+    }
   });
 
   watch(state, 'activeFeedId', () => {

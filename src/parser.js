@@ -11,10 +11,10 @@ export default (xml) => {
   const pubDate = new Date(formattedPubDate);
 
   const nodes = dom.querySelectorAll('item');
-  const items = Array.from(nodes).map((item) => {
-    const itemTitle = getTagValue(item, 'title');
-    const itemLink = getTagValue(item, 'link');
-    const itemFormattedPubDate = getTagValue(item, 'pubDate');
+  const items = Array.from(nodes).map((node) => {
+    const itemTitle = getTagValue(node, 'title');
+    const itemLink = getTagValue(node, 'link');
+    const itemFormattedPubDate = getTagValue(node, 'pubDate');
     const itemPubDate = new Date(itemFormattedPubDate);
     return { title: itemTitle, link: itemLink, pubDate: itemPubDate };
   });
