@@ -25,99 +25,98 @@ const getTree = () => html(document.body.innerHTML, htmlOptions);
 
 let elements;
 
-describe('ui', () => {
-  beforeEach(() => {
-    const initHtml = readFixture('index.html');
-    document.documentElement.innerHTML = initHtml;
-    run();
 
-    elements = {
-      form: document.querySelector('form'),
-      input: document.querySelector('input'),
-      button: document.querySelector('button'),
-      feeds: document.querySelector('.rss-feeds'),
-    };
-  });
+beforeEach(() => {
+  const initHtml = readFixture('index.html');
+  document.documentElement.innerHTML = initHtml;
+  run();
 
-  test('passing invalid url', async () => {
-    expect(getTree()).toMatchSnapshot();
+  elements = {
+    form: document.querySelector('form'),
+    input: document.querySelector('input'),
+    button: document.querySelector('button'),
+    feeds: document.querySelector('.rss-feeds'),
+  };
+});
 
-    await userEvent.type(elements.input, 'invalid url', { allAtOnce: true });
-    elements.input.setAttribute('value', 'invalid url');
+test('invalid url', async () => {
+  expect(getTree()).toMatchSnapshot();
 
-    await timer.start(10);
-    expect(getTree()).toMatchSnapshot();
+  await userEvent.type(elements.input, 'invalid url', { allAtOnce: true });
+  elements.input.setAttribute('value', 'invalid url');
 
-    elements.form.submit();
-    await timer.start(10);
+  await timer.start(10);
+  expect(getTree()).toMatchSnapshot();
 
-    expect(getTree()).toMatchSnapshot();
-  });
+  elements.form.submit();
+  await timer.start(10);
 
-  test('passing empty url', async () => {
-    elements.form.submit();
-    await timer.start(10);
+  expect(getTree()).toMatchSnapshot();
+});
 
-    expect(getTree()).toMatchSnapshot();
-  });
+test('empty url', async () => {
+  elements.form.submit();
+  await timer.start(10);
 
-  test('valid url', async () => {
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com';
+  expect(getTree()).toMatchSnapshot();
+});
 
-    const firstValidUrl = 'https://www.example.com/rss1.xml';
-    const firstResponseRss = readFixture('rss1.xml');
+test('valid url', async () => {
+  const proxyUrl = 'https://cors-anywhere.herokuapp.com';
 
-    const secondValidUrl = 'https://www.example.com/rss2.xml';
-    const secondResponseRss = readFixture('rss2.xml');
+  const firstValidUrl = 'https://www.example.com/rss1.xml';
+  const firstRssResponse = readFixture('rss1.xml');
 
-    nock(proxyUrl)
-      .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
-      .get(`/${firstValidUrl}`)
-      .reply(200, firstResponseRss);
+  const secondValidUrl = 'https://www.example.com/rss2.xml';
+  const secondRssResponse = readFixture('rss2.xml');
 
-    nock(proxyUrl)
-      .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
-      .get(`/${secondValidUrl}`)
-      .reply(200, secondResponseRss);
+  nock(proxyUrl)
+    .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+    .get(`/${firstValidUrl}`)
+    .reply(200, firstRssResponse);
 
-    await userEvent.type(elements.input, firstValidUrl, { allAtOnce: true });
-    elements.input.setAttribute('value', firstValidUrl);
+  nock(proxyUrl)
+    .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+    .get(`/${secondValidUrl}`)
+    .reply(200, secondRssResponse);
 
-    await timer.start(10);
-    elements.form.submit();
+  await userEvent.type(elements.input, firstValidUrl, { allAtOnce: true });
+  elements.input.setAttribute('value', firstValidUrl);
 
-    await timer.start(10);
-    await timer.start(10);
-    await timer.start(10);
-    await timer.start(10);
+  await timer.start(10);
+  elements.form.submit();
 
-    expect(getTree()).toMatchSnapshot();
+  await timer.start(10);
+  await timer.start(10);
+  await timer.start(10);
+  await timer.start(10);
 
-    await timer.start(10);
+  expect(getTree()).toMatchSnapshot();
 
-    await userEvent.type(elements.input, '', { allAtOnce: true });
-    elements.input.setAttribute('value', '');
+  await timer.start(10);
 
-    await timer.start(10);
-    expect(getTree()).toMatchSnapshot();
+  await userEvent.type(elements.input, '', { allAtOnce: true });
+  elements.input.setAttribute('value', '');
 
-    await userEvent.type(elements.input, secondValidUrl, { allAtOnce: true });
-    elements.input.setAttribute('value', secondValidUrl);
+  await timer.start(10);
+  expect(getTree()).toMatchSnapshot();
 
-    await timer.start(10);
-    elements.form.submit();
+  await userEvent.type(elements.input, secondValidUrl, { allAtOnce: true });
+  elements.input.setAttribute('value', secondValidUrl);
 
-    await timer.start(10);
-    await timer.start(10);
-    await timer.start(10);
-    await timer.start(10);
+  await timer.start(10);
+  elements.form.submit();
 
-    expect(getTree()).toMatchSnapshot();
+  await timer.start(10);
+  await timer.start(10);
+  await timer.start(10);
+  await timer.start(10);
 
-    const feedLink = elements.feeds.querySelector('a');
-    await userEvent.click(feedLink);
+  expect(getTree()).toMatchSnapshot();
 
-    await timer.start(10);
-    expect(getTree()).toMatchSnapshot();
-  });
+  const feedLink = elements.feeds.querySelector('a');
+  await userEvent.click(feedLink);
+
+  await timer.start(10);
+  expect(getTree()).toMatchSnapshot();
 });

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ui passing empty url 1`] = `
+exports[`empty url 1`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>
@@ -24,7 +24,7 @@ exports[`ui passing empty url 1`] = `
 </div>"
 `;
 
-exports[`ui passing invalid url 1`] = `
+exports[`invalid url 1`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>
@@ -47,7 +47,7 @@ exports[`ui passing invalid url 1`] = `
 </div>"
 `;
 
-exports[`ui passing invalid url 2`] = `
+exports[`invalid url 2`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>
@@ -70,7 +70,7 @@ exports[`ui passing invalid url 2`] = `
 </div>"
 `;
 
-exports[`ui passing invalid url 3`] = `
+exports[`invalid url 3`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>
@@ -94,7 +94,7 @@ exports[`ui passing invalid url 3`] = `
 </div>"
 `;
 
-exports[`ui valid url 1`] = `
+exports[`valid url 1`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>
@@ -117,7 +117,7 @@ exports[`ui valid url 1`] = `
 </div>"
 `;
 
-exports[`ui valid url 2`] = `
+exports[`valid url 2`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>
@@ -154,7 +154,7 @@ exports[`ui valid url 2`] = `
 </div>"
 `;
 
-exports[`ui valid url 3`] = `
+exports[`valid url 3`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>
@@ -197,7 +197,7 @@ exports[`ui valid url 3`] = `
 </div>"
 `;
 
-exports[`ui valid url 4`] = `
+exports[`valid url 4`] = `
 "<div class=\\"container mt-5\\">
     <div class=\\"jumbotron\\">
         <h1>RSS Reader</h1>
