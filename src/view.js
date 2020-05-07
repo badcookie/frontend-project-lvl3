@@ -3,12 +3,12 @@ import { watch } from 'melanke-watchjs';
 
 /* eslint no-param-reassign: ["error", { "props": false }] */
 
-export const formProcessStates = Object.freeze({
+export const formProcessStates = {
   filling: 'filling',
   sending: 'sending',
   failed: 'failed',
   finished: 'finished',
-});
+};
 
 const renderFeeds = (state) => {
   const { elements: { feeds } } = state;

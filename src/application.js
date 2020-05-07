@@ -18,12 +18,12 @@ const {
   filling, sending, failed, finished,
 } = formProcessStates;
 
-const formMessageTypes = Object.freeze({
-  network: 'network',
+const formMessageTypes = {
+  network: 'networkError',
   success: 'success',
-  urlRequired: 'required',
-  parsing: 'parsing',
-});
+  urlRequired: 'urlRequired',
+  parsing: 'parsingError',
+};
 
 
 const normalizeUrl = (url) => url.replace(/\/+$/, '');
@@ -47,6 +47,13 @@ const schema = yup.object().shape({
 });
 
 
+const validationErrorToMessageType = {
+  url: 'invalidUrl',
+  notAdded: 'urlAlreadyExists',
+  required: 'urlRequired',
+};
+
+
 const validate = (state) => {
   const dataToValidate = { url: state.form.data };
   const validationContext = { context: { state } };
@@ -57,7 +64,8 @@ const validate = (state) => {
       state.form.isValid = true;
     })
     .catch((error) => {
-      state.form.messageType = error.type;
+      const messageType = validationErrorToMessageType[error.type];
+      state.form.messageType = messageType;
       state.form.isValid = false;
     });
 };
@@ -153,8 +161,8 @@ export const run = () => {
         state.form.messageType = formMessageTypes.parsing;
         throw error;
       })
-      .then((feedData) => {
-        const { items, ...remainingFeedData } = feedData;
+      .then((parsedFeedData) => {
+        const { items, ...remainingFeedData } = parsedFeedData;
 
         const feed = { ...remainingFeedData, id: _.uniqueId(), link: url };
         const posts = items.map((item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }));

@@ -2,12 +2,12 @@ export default {
   en: {
     translation: {
       messages: {
-        network: 'Network error: {{ data }} ({{ status }})',
-        required: 'URL is required',
-        notAdded: 'URL was already added',
-        url: 'Invalid URL',
+        networkError: 'Network error: {{ data }} ({{ status }})',
+        urlRequired: 'URL is required',
+        urlAlreadyExists: 'URL was already added',
+        invalidUrl: 'Invalid URL',
         success: 'RSS has been loaded',
-        parsing: 'Parsing error',
+        parsingError: 'Parsing error',
       },
     },
   },
