@@ -1,13 +1,14 @@
 import i18next from 'i18next';
 import { watch } from 'melanke-watchjs';
 
-import { formProcessStates } from './consts';
-
 /* eslint no-param-reassign: ["error", { "props": false }] */
 
-const {
-  filling, sending, failed, finished,
-} = formProcessStates;
+export const formProcessStates = Object.freeze({
+  filling: 'filling',
+  sending: 'sending',
+  failed: 'failed',
+  finished: 'finished',
+});
 
 const renderFeeds = (state) => {
   const { elements: { feeds } } = state;
@@ -68,7 +69,7 @@ const renderPosts = (state) => {
   });
 };
 
-export default (state) => {
+export const render = (state) => {
   watch(state, 'shouldUpdateActiveFeed', () => {
     if (state.shouldUpdateActiveFeed) {
       renderPosts(state);
@@ -90,15 +91,15 @@ export default (state) => {
     }
 
     switch (processState) {
-      case filling: {
+      case formProcessStates.filling: {
         submit.disabled = false;
         break;
       }
-      case sending: {
+      case formProcessStates.sending: {
         submit.disabled = true;
         break;
       }
-      case failed: {
+      case formProcessStates.failed: {
         const { form: { messageType, messageContext } } = state;
         const formMessage = i18next.t(`messages.${messageType}`, messageContext);
         const feedbackElement = document.createElement('div');
@@ -111,7 +112,7 @@ export default (state) => {
         submit.blur();
         break;
       }
-      case finished: {
+      case formProcessStates.finished: {
         const formMessage = i18next.t(`messages.${state.form.messageType}`);
         const feedbackElement = document.createElement('div');
         feedbackElement.classList.add('feedback', 'text-success');

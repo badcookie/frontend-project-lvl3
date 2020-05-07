@@ -5,8 +5,7 @@ import timer from 'timer-promise';
 import { html } from 'js-beautify';
 import userEvent from '@testing-library/user-event';
 
-import run from '../src/application';
-import { proxyAddress } from '../src/consts';
+import { run, proxyAddress } from '../src/application';
 
 nock.disableNetConnect();
 

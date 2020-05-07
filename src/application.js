@@ -3,23 +3,27 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 
-import render from './view';
+import { render, formProcessStates } from './view';
 import parse from './parser';
 import resources from './locales';
-import {
-  feedUpdateIntervalMs, formProcessStates, proxyAddress, formMessageTypes,
-} from './consts';
 
 /* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
+
+const feedUpdateIntervalMs = 5 * 1000;
+
+export const proxyAddress = 'https://cors-anywhere.herokuapp.com';
 
 const {
   filling, sending, failed, finished,
 } = formProcessStates;
 
-const {
-  network, success, urlRequired, parsing,
-} = formMessageTypes;
+const formMessageTypes = Object.freeze({
+  network: 'network',
+  success: 'success',
+  urlRequired: 'required',
+  parsing: 'parsing',
+});
 
 
 const normalize = (url) => url.replace(/\/+$/, '');
@@ -94,12 +98,12 @@ const checkForUpdates = (state) => () => {
 };
 
 
-export default () => {
+export const run = () => {
   const state = {
     form: {
       data: '',
       isValid: false,
-      messageType: urlRequired,
+      messageType: formMessageTypes.urlRequired,
       messageContext: {},
       processState: filling,
     },
@@ -140,13 +144,13 @@ export default () => {
       .catch((error) => {
         const { response: { status, data } } = error;
         state.form.processState = failed;
-        state.form.messageType = network;
+        state.form.messageType = formMessageTypes.network;
         state.form.messageContext = { status, data };
         throw error;
       }).then((response) => parse(response.data))
       .catch((error) => {
         state.form.processState = failed;
-        state.form.messageType = parsing;
+        state.form.messageType = formMessageTypes.parsing;
         throw error;
       })
       .then((feedData) => {
@@ -163,7 +167,7 @@ export default () => {
         state.posts = [...state.posts, ...posts];
 
         state.form.processState = finished;
-        state.form.messageType = success;
+        state.form.messageType = formMessageTypes.success;
       });
   });
 
