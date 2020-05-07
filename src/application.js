@@ -12,7 +12,7 @@ import resources from './locales';
 
 const feedUpdateIntervalMs = 5 * 1000;
 
-export const proxyAddress = 'https://cors-anywhere.herokuapp.com';
+const proxyAddress = 'https://cors-anywhere.herokuapp.com';
 
 const {
   filling, sending, failed, finished,
@@ -170,7 +170,7 @@ const handleInput = (state) => ({ target }) => {
 };
 
 
-export const run = () => {
+export default () => {
   const state = {
     form: {
       data: '',
