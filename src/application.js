@@ -26,7 +26,7 @@ const formMessageTypes = Object.freeze({
 });
 
 
-const normalize = (url) => url.replace(/\/+$/, '');
+const normalizeUrl = (url) => url.replace(/\/+$/, '');
 
 const buildProxyUrl = (url) => `${proxyAddress}/${url}`;
 
@@ -36,7 +36,7 @@ yup.addMethod(yup.string, 'notAdded', function () {
     const { path, createError, options } = this;
     const { context: { state } } = options;
 
-    const normalizedUrl = normalize(url);
+    const normalizedUrl = normalizeUrl(url);
     const feedExists = state.feeds.find(({ link }) => link === normalizedUrl);
     return feedExists ? createError({ path }) : true;
   });
@@ -137,7 +137,7 @@ export const run = () => {
 
     state.form.processState = sending;
 
-    const url = normalize(state.form.data);
+    const url = normalizeUrl(state.form.data);
     const proxyUrl = buildProxyUrl(url);
 
     axios.get(proxyUrl)
