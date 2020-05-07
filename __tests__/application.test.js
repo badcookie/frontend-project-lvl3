@@ -40,6 +40,8 @@ beforeEach(() => {
 });
 
 test('invalid url', async () => {
+  console.log(elements);
+
   expect(getTree()).toMatchSnapshot();
 
   await userEvent.type(elements.input, 'invalid url', { allAtOnce: true });
@@ -63,20 +65,19 @@ test('empty url', async () => {
 
 test('valid url', async () => {
   const firstValidUrl = 'https://www.example.com/rss1.xml';
-  const firstRssResponse = readFixture('rss1.xml');
-
   const secondValidUrl = 'https://www.example.com/rss2.xml';
-  const secondRssResponse = readFixture('rss2.xml');
 
-  nock(proxyAddress)
-    .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
-    .get(`/${firstValidUrl}`)
-    .reply(200, firstRssResponse);
+  const rssFixtures = [
+    { url: firstValidUrl, response: readFixture('rss1.xml') },
+    { url: secondValidUrl, response: readFixture('rss2.xml') },
+  ];
 
-  nock(proxyAddress)
-    .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
-    .get(`/${secondValidUrl}`)
-    .reply(200, secondRssResponse);
+  rssFixtures.forEach(({ url, response }) => {
+    nock(proxyAddress)
+      .defaultReplyHeaders({ 'access-control-allow-origin': '*' })
+      .get(`/${url}`)
+      .reply(200, response);
+  });
 
   await userEvent.type(elements.input, firstValidUrl, { allAtOnce: true });
   elements.input.setAttribute('value', firstValidUrl);

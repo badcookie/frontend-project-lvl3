@@ -3,7 +3,7 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 
-import { render, formProcessStates } from './view';
+import { render, elements, formProcessStates } from './view';
 import parse from './parser';
 import resources from './locales';
 
@@ -71,31 +71,35 @@ const validate = (state) => {
 };
 
 
+const updateFeed = (oldFeed, newFeed, state) => {
+  const newItems = newFeed.items
+    .filter((item) => item.pubDate > oldFeed.pubDate);
+
+  if (newItems.length === 0) {
+    return;
+  }
+
+  const newPosts = newItems.map(
+    (item) => ({ ...item, id: _.uniqueId(), feedId: oldFeed.id }),
+  );
+
+  state.posts = [...newPosts, ...state.posts];
+  oldFeed.pubDate = newFeed.pubDate;
+
+  if (oldFeed.id === state.activeFeedId) {
+    state.shouldUpdateActiveFeed = true;
+  }
+};
+
+
 const checkForUpdates = (state) => () => {
-  const { feeds, activeFeedId } = state;
+  const { feeds } = state;
 
-  const tasks = feeds.map((feed) => {
-    const proxyUrl = buildProxyUrl(feed.link);
+  const tasks = feeds.map((oldFeed) => {
+    const proxyUrl = buildProxyUrl(oldFeed.link);
     return axios.get(proxyUrl).then((response) => {
-      const updatedFeed = parse(response.data);
-
-      const newItems = updatedFeed.items
-        .filter((item) => item.pubDate > feed.pubDate);
-
-      if (newItems.length === 0) {
-        return;
-      }
-
-      const newPosts = newItems.map(
-        (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
-      );
-
-      state.posts = [...newPosts, ...state.posts];
-      feed.pubDate = updatedFeed.pubDate;
-
-      if (feed.id === activeFeedId) {
-        state.shouldUpdateActiveFeed = true;
-      }
+      const newFeed = parse(response.data);
+      updateFeed(oldFeed, newFeed, state);
     });
   });
 
@@ -103,6 +107,66 @@ const checkForUpdates = (state) => () => {
     setTimeout(checkForUpdates(state), feedUpdateIntervalMs);
     state.shouldUpdateActiveFeed = false;
   });
+};
+
+
+const handleNetworkError = (error, state) => {
+  const { response: { status, data } } = error;
+  state.form.processState = failed;
+  state.form.messageType = formMessageTypes.network;
+  state.form.messageContext = { status, data };
+  throw error;
+};
+
+
+const handleParsingError = (error, state) => {
+  state.form.processState = failed;
+  state.form.messageType = formMessageTypes.parsing;
+  throw error;
+};
+
+
+const saveFeedAndPosts = (parsedFeed, feedUrl, state) => {
+  const { items, ...remainingFeedData } = parsedFeed;
+
+  const feed = { ...remainingFeedData, id: _.uniqueId(), link: feedUrl };
+  const posts = items.map((item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }));
+
+  if (state.feeds.length === 0) {
+    state.activeFeedId = feed.id;
+  }
+
+  state.feeds = [...state.feeds, feed];
+  state.posts = [...state.posts, ...posts];
+
+  state.form.processState = finished;
+  state.form.messageType = formMessageTypes.success;
+};
+
+
+const handleSubmit = (state) => (event) => {
+  event.preventDefault();
+
+  if (!state.form.isValid) {
+    state.form.processState = failed;
+    return;
+  }
+
+  state.form.processState = sending;
+
+  const url = normalizeUrl(state.form.data);
+  const proxyUrl = buildProxyUrl(url);
+  axios.get(proxyUrl)
+    .catch((error) => handleNetworkError(error, state))
+    .then((response) => parse(response.data))
+    .catch((error) => handleParsingError(error, state))
+    .then((parsedFeed) => saveFeedAndPosts(parsedFeed, url, state));
+};
+
+const handleInput = (state) => ({ target }) => {
+  state.form.data = target.value;
+  state.form.processState = filling;
+  validate(state);
 };
 
 
@@ -119,69 +183,12 @@ export const run = () => {
     posts: [],
     activeFeedId: null,
     shouldUpdateActiveFeed: false,
-    elements: {
-      input: document.querySelector('input'),
-      form: document.querySelector('form'),
-      submit: document.querySelector('button'),
-      formContainer: document.querySelector('.jumbotron'),
-      feeds: document.querySelector('.rss-feeds'),
-      posts: document.querySelector('.rss-posts'),
-    },
   };
 
-  state.elements.input.addEventListener('input', ({ target }) => {
-    state.form.data = target.value;
-    state.form.processState = filling;
-    validate(state);
-  });
-
-  state.elements.form.addEventListener('submit', (event) => {
-    event.preventDefault();
-
-    if (!state.form.isValid) {
-      state.form.processState = failed;
-      return;
-    }
-
-    state.form.processState = sending;
-
-    const url = normalizeUrl(state.form.data);
-    const proxyUrl = buildProxyUrl(url);
-
-    axios.get(proxyUrl)
-      .catch((error) => {
-        const { response: { status, data } } = error;
-        state.form.processState = failed;
-        state.form.messageType = formMessageTypes.network;
-        state.form.messageContext = { status, data };
-        throw error;
-      }).then((response) => parse(response.data))
-      .catch((error) => {
-        state.form.processState = failed;
-        state.form.messageType = formMessageTypes.parsing;
-        throw error;
-      })
-      .then((parsedFeedData) => {
-        const { items, ...remainingFeedData } = parsedFeedData;
-
-        const feed = { ...remainingFeedData, id: _.uniqueId(), link: url };
-        const posts = items.map((item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }));
-
-        if (state.feeds.length === 0) {
-          state.activeFeedId = feed.id;
-        }
-
-        state.feeds = [...state.feeds, feed];
-        state.posts = [...state.posts, ...posts];
-
-        state.form.processState = finished;
-        state.form.messageType = formMessageTypes.success;
-      });
-  });
+  elements.input.addEventListener('input', handleInput(state));
+  elements.form.addEventListener('submit', handleSubmit(state));
 
   render(state);
-
   i18next.init({ lng: 'en', resources });
-
   setTimeout(checkForUpdates(state), feedUpdateIntervalMs);
 };
