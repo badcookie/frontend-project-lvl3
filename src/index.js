@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.css';
 
-import { run } from './application';
+import app from './application';
 
-run();
+app();

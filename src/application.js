@@ -12,7 +12,7 @@ import { render, formProcessStates } from './view';
 
 const feedUpdateIntervalMs = 5 * 1000;
 
-export const proxyAddress = 'https://cors-anywhere.herokuapp.com';
+const proxyAddress = 'https://cors-anywhere.herokuapp.com';
 
 const {
   filling, sending, failed, finished,
@@ -66,12 +66,12 @@ const updateValidationState = (state) => {
   schema.validate(dataToValidate, validationContext)
     .then(() => {
       state.form.messageType = '';
-      state.form.isValid = true;
+      state.form.processState = filling;
     })
     .catch((error) => {
       const messageType = validationErrorToMessageType[error.type];
       state.form.messageType = messageType;
-      state.form.isValid = false;
+      state.form.processState = failed;
     });
 };
 
@@ -147,27 +147,25 @@ const saveFeedAndPosts = (parsedFeed, feedUrl, state) => {
   state.form.messageType = formMessageTypes.success;
 };
 
+const fetchFeed = (url, state) => {
+  state.form.processState = sending;
+  return axios.get(url).then((response) => {
+    try {
+      return parse(response.data);
+    } catch (error) {
+      throw new XMLParsingError(error.message);
+    }
+  });
+};
+
 const handleSubmit = (state) => (event) => {
   event.preventDefault();
 
-  if (!state.form.isValid) {
-    state.form.processState = failed;
-    return;
-  }
-
-  state.form.processState = sending;
-
   const url = normalizeUrl(state.form.data);
   const proxyUrl = buildProxyUrl(url);
-  axios.get(proxyUrl)
-    .then((response) => {
-      try {
-        const parsedFeed = parse(response.data);
-        saveFeedAndPosts(parsedFeed, url, state);
-      } catch (error) {
-        throw new XMLParsingError(error.message);
-      }
-    })
+
+  fetchFeed(proxyUrl, state)
+    .then((parsedFeed) => saveFeedAndPosts(parsedFeed, url, state))
     .catch((error) => handleFetchError(error, state));
 };
 
@@ -177,11 +175,10 @@ const handleInput = (state) => ({ target }) => {
   updateValidationState(state);
 };
 
-export const run = () => {
+export default () => {
   const state = {
     form: {
       data: '',
-      isValid: false,
       messageType: formMessageTypes.urlRequired,
       messageContext: {},
       processState: filling,

@@ -126,6 +126,7 @@ export const render = (state) => {
 
     switch (processState) {
       case formProcessStates.filling: {
+        elements.input.style.removeProperty('border');
         submit.disabled = false;
         break;
       }
