@@ -3,9 +3,9 @@ import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
 
-import { render, elements, formProcessStates } from './view';
 import parse from './parser';
 import resources from './locales';
+import { render, elements, formProcessStates } from './view';
 
 /* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
@@ -72,8 +72,12 @@ const validate = (state) => {
 
 
 const updateFeed = (oldFeed, newFeed, state) => {
-  const newItems = newFeed.items
-    .filter((item) => item.pubDate > oldFeed.pubDate);
+  state.shouldUpdateActiveFeed = false;
+
+  const newItems = _.differenceBy(
+    newFeed.items, [oldFeed],
+    (item) => item.pubDate > oldFeed.pubDate,
+  );
 
   if (newItems.length === 0) {
     return;
@@ -83,7 +87,7 @@ const updateFeed = (oldFeed, newFeed, state) => {
     (item) => ({ ...item, id: _.uniqueId(), feedId: oldFeed.id }),
   );
 
-  state.posts = [...newPosts, ...state.posts];
+  state.posts.unshift(...newPosts);
   oldFeed.pubDate = newFeed.pubDate;
 
   if (oldFeed.id === state.activeFeedId) {
@@ -105,7 +109,6 @@ const checkForUpdates = (state) => () => {
 
   Promise.all(tasks).finally(() => {
     setTimeout(checkForUpdates(state), feedUpdateIntervalMs);
-    state.shouldUpdateActiveFeed = false;
   });
 };
 
@@ -136,8 +139,8 @@ const saveFeedAndPosts = (parsedFeed, feedUrl, state) => {
     state.activeFeedId = feed.id;
   }
 
-  state.feeds = [...state.feeds, feed];
-  state.posts = [...state.posts, ...posts];
+  state.feeds.push(feed);
+  state.posts.push(...posts);
 
   state.form.processState = finished;
   state.form.messageType = formMessageTypes.success;
