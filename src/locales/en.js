@@ -7,7 +7,7 @@ export default {
         urlAlreadyExists: 'URL was already added',
         invalidUrl: 'Invalid URL',
         success: 'RSS has been loaded',
-        parsingError: 'Parsing error',
+        parsingError: 'Parsing error: {{ data }}',
       },
     },
   },

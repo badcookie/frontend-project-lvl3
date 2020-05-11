@@ -12,7 +12,7 @@ import { render, formProcessStates } from './view';
 
 const feedUpdateIntervalMs = 5 * 1000;
 
-const proxyAddress = 'https://cors-anywhere.herokuapp.com';
+export const proxyAddress = 'https://cors-anywhere.herokuapp.com';
 
 const {
   filling, sending, failed, finished,
@@ -25,11 +25,17 @@ const formMessageTypes = {
   parsing: 'parsingError',
 };
 
+class XMLParsingError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'XMLParsingError';
+    this.message = message;
+  }
+}
 
 const normalizeUrl = (url) => url.replace(/\/+$/, '');
 
 const buildProxyUrl = (url) => `${proxyAddress}/${url}`;
-
 
 yup.addMethod(yup.string, 'notAdded', function () {
   return this.test('notAdded', function (url) {
@@ -45,7 +51,6 @@ yup.addMethod(yup.string, 'notAdded', function () {
 const schema = yup.object().shape({
   url: yup.string().required().url().notAdded(),
 });
-
 
 const validationErrorToMessageType = {
   url: 'invalidUrl',
@@ -69,7 +74,6 @@ const updateValidationState = (state) => {
       state.form.isValid = false;
     });
 };
-
 
 const updateFeed = (oldFeed, newFeed, state) => {
   state.shouldUpdateActiveFeed = false;
@@ -95,7 +99,6 @@ const updateFeed = (oldFeed, newFeed, state) => {
   }
 };
 
-
 const checkForFeedsUpdates = (state) => () => {
   const { feeds } = state;
 
@@ -112,22 +115,20 @@ const checkForFeedsUpdates = (state) => () => {
   });
 };
 
-
-const handleNetworkError = (error, state) => {
-  const { response: { status, data } } = error;
+const handleFetchError = (error, state) => {
   state.form.processState = failed;
-  state.form.messageType = formMessageTypes.network;
-  state.form.messageContext = { status, data };
+
+  if (error instanceof XMLParsingError) {
+    state.form.messageType = formMessageTypes.parsing;
+    state.form.messageContext = { data: error.message };
+  } else {
+    const { status, data } = error.response;
+    state.form.messageType = formMessageTypes.network;
+    state.form.messageContext = { status, data };
+  }
+
   throw error;
 };
-
-
-const handleParsingError = (error, state) => {
-  state.form.processState = failed;
-  state.form.messageType = formMessageTypes.parsing;
-  throw error;
-};
-
 
 const saveFeedAndPosts = (parsedFeed, feedUrl, state) => {
   const { items, ...remainingFeedData } = parsedFeed;
@@ -146,7 +147,6 @@ const saveFeedAndPosts = (parsedFeed, feedUrl, state) => {
   state.form.messageType = formMessageTypes.success;
 };
 
-
 const handleSubmit = (state) => (event) => {
   event.preventDefault();
 
@@ -160,10 +160,15 @@ const handleSubmit = (state) => (event) => {
   const url = normalizeUrl(state.form.data);
   const proxyUrl = buildProxyUrl(url);
   axios.get(proxyUrl)
-    .catch((error) => handleNetworkError(error, state))
-    .then((response) => parse(response.data))
-    .catch((error) => handleParsingError(error, state))
-    .then((parsedFeed) => saveFeedAndPosts(parsedFeed, url, state));
+    .then((response) => {
+      try {
+        const parsedFeed = parse(response.data);
+        saveFeedAndPosts(parsedFeed, url, state);
+      } catch (error) {
+        throw new XMLParsingError(error.message);
+      }
+    })
+    .catch((error) => handleFetchError(error, state));
 };
 
 const handleInput = (state) => ({ target }) => {
@@ -172,8 +177,7 @@ const handleInput = (state) => ({ target }) => {
   updateValidationState(state);
 };
 
-
-export default () => {
+export const run = () => {
   const state = {
     form: {
       data: '',

@@ -5,7 +5,7 @@ import timer from 'timer-promise';
 import { html } from 'js-beautify';
 import userEvent from '@testing-library/user-event';
 
-import run from '../src/application';
+import { run, proxyAddress } from '../src/application';
 
 nock.disableNetConnect();
 
@@ -62,7 +62,6 @@ test('empty url', async () => {
 });
 
 test('valid url', async () => {
-  const proxyAddress = 'https://cors-anywhere.herokuapp.com';
   const firstValidUrl = 'https://www.example.com/rss1.xml';
   const secondValidUrl = 'https://www.example.com/rss2.xml';
 
