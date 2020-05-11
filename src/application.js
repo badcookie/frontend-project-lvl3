@@ -115,7 +115,7 @@ const checkForFeedsUpdates = (state) => () => {
   });
 };
 
-const handleFetchError = (error, state) => {
+const handleSubmitError = (error, state) => {
   state.form.processState = failed;
 
   if (error instanceof XMLParsingError) {
@@ -166,7 +166,7 @@ const handleSubmit = (state) => (event) => {
 
   fetchFeed(proxyUrl, state)
     .then((parsedFeed) => saveFeedAndPosts(parsedFeed, url, state))
-    .catch((error) => handleFetchError(error, state));
+    .catch((error) => handleSubmitError(error, state));
 };
 
 const handleInput = (state) => ({ target }) => {
