@@ -10,14 +10,6 @@ export const formProcessStates = {
   finished: 'finished',
 };
 
-export const elements = {
-  input: document.querySelector('input'),
-  form: document.querySelector('form'),
-  submit: document.querySelector('button'),
-  formContainer: document.querySelector('.jumbotron'),
-  feeds: document.querySelector('.rss-feeds'),
-  posts: document.querySelector('.rss-posts'),
-};
 
 const renderFeeds = (state, feedsElement) => {
   feedsElement.innerHTML = '';
@@ -107,6 +99,8 @@ const renderSuccessMessage = (state, formElements) => {
 
 
 export const render = (state) => {
+  const { elements } = state;
+
   watch(state, 'shouldUpdateActiveFeed', () => {
     if (state.shouldUpdateActiveFeed) {
       renderPosts(state, elements.posts);

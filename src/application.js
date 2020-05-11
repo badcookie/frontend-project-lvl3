@@ -5,7 +5,7 @@ import i18next from 'i18next';
 
 import parse from './parser';
 import resources from './locales';
-import { render, elements, formProcessStates } from './view';
+import { render, formProcessStates } from './view';
 
 /* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
@@ -186,10 +186,19 @@ export default () => {
     posts: [],
     activeFeedId: null,
     shouldUpdateActiveFeed: false,
+    elements: {
+      input: document.querySelector('input'),
+      form: document.querySelector('form'),
+      submit: document.querySelector('button'),
+      formContainer: document.querySelector('.jumbotron'),
+      feeds: document.querySelector('.rss-feeds'),
+      posts: document.querySelector('.rss-posts'),
+    },
   };
 
-  elements.input.addEventListener('input', handleInput(state));
-  elements.form.addEventListener('submit', handleSubmit(state));
+  const { elements: { input, form } } = state;
+  input.addEventListener('input', handleInput(state));
+  form.addEventListener('submit', handleSubmit(state));
 
   render(state);
   i18next.init({ lng: 'en', resources });
