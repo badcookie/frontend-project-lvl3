@@ -54,7 +54,7 @@ const validationErrorToMessageType = {
 };
 
 
-const validate = (state) => {
+const updateValidationState = (state) => {
   const dataToValidate = { url: state.form.data };
   const validationContext = { context: { state } };
 
@@ -96,7 +96,7 @@ const updateFeed = (oldFeed, newFeed, state) => {
 };
 
 
-const checkForUpdates = (state) => () => {
+const checkForFeedsUpdates = (state) => () => {
   const { feeds } = state;
 
   const tasks = feeds.map((oldFeed) => {
@@ -108,7 +108,7 @@ const checkForUpdates = (state) => () => {
   });
 
   Promise.all(tasks).finally(() => {
-    setTimeout(checkForUpdates(state), feedUpdateIntervalMs);
+    setTimeout(checkForFeedsUpdates(state), feedUpdateIntervalMs);
   });
 };
 
@@ -169,7 +169,7 @@ const handleSubmit = (state) => (event) => {
 const handleInput = (state) => ({ target }) => {
   state.form.data = target.value;
   state.form.processState = filling;
-  validate(state);
+  updateValidationState(state);
 };
 
 
@@ -202,5 +202,5 @@ export default () => {
 
   render(state);
   i18next.init({ lng: 'en', resources });
-  setTimeout(checkForUpdates(state), feedUpdateIntervalMs);
+  setTimeout(checkForFeedsUpdates(state), feedUpdateIntervalMs);
 };
