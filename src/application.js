@@ -161,7 +161,7 @@ const handleSubmit = (state) => (event) => {
   event.preventDefault();
 
   const url = state.form.data;
-  const proxyUrl = buildProxyUrl(state.form.data);
+  const proxyUrl = buildProxyUrl(url);
 
   fetchFeed(proxyUrl, state)
     .then((parsedFeed) => saveFeedAndPosts(parsedFeed, url, state))
