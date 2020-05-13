@@ -2,6 +2,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
+import * as urljoin from 'url-join';
 
 import parse from './parser';
 import resources from './locales';
@@ -33,17 +34,13 @@ class XMLParsingError extends Error {
   }
 }
 
-const normalizeUrl = (url) => url.replace(/\/+$/, '');
-
-const buildProxyUrl = (url) => `${proxyAddress}/${url}`;
+const buildProxyUrl = (url) => urljoin(proxyAddress, url);
 
 yup.addMethod(yup.string, 'notAdded', function () {
   return this.test('notAdded', function (url) {
     const { path, createError, options } = this;
     const { context: { state } } = options;
-
-    const normalizedUrl = normalizeUrl(url);
-    const feedExists = state.feeds.find(({ link }) => link === normalizedUrl);
+    const feedExists = state.feeds.find(({ link }) => link === url);
     return feedExists ? createError({ path }) : true;
   });
 });
@@ -110,9 +107,9 @@ const checkForFeedsUpdates = (state) => () => {
     });
   });
 
-  Promise.all(tasks).finally(() => {
-    setTimeout(checkForFeedsUpdates(state), feedUpdateIntervalMs);
-  });
+  Promise.all(tasks).finally(
+    () => setTimeout(checkForFeedsUpdates(state), feedUpdateIntervalMs),
+  );
 };
 
 const handleSubmitError = (error, state) => {
@@ -134,7 +131,9 @@ const saveFeedAndPosts = (parsedFeed, feedUrl, state) => {
   const { items, ...remainingFeedData } = parsedFeed;
 
   const feed = { ...remainingFeedData, id: _.uniqueId(), link: feedUrl };
-  const posts = items.map((item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }));
+  const posts = items.map(
+    (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
+  );
 
   if (state.feeds.length === 0) {
     state.activeFeedId = feed.id;
@@ -161,8 +160,8 @@ const fetchFeed = (url, state) => {
 const handleSubmit = (state) => (event) => {
   event.preventDefault();
 
-  const url = normalizeUrl(state.form.data);
-  const proxyUrl = buildProxyUrl(url);
+  const url = state.form.data;
+  const proxyUrl = buildProxyUrl(state.form.data);
 
   fetchFeed(proxyUrl, state)
     .then((parsedFeed) => saveFeedAndPosts(parsedFeed, url, state))
