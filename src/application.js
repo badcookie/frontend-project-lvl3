@@ -32,8 +32,7 @@ const checkForFeedsUpdates = (state) => () => {
     return axios.get(proxyUrl).then((response) => {
       const newFeed = parse(response.data);
       const newItems = _.differenceBy(
-        newFeed.items, [oldFeed],
-        (item) => item.pubDate > oldFeed.pubDate,
+        newFeed.items, [oldFeed], (item) => item.pubDate > oldFeed.pubDate,
       );
       if (newItems.length === 0) {
         return;
