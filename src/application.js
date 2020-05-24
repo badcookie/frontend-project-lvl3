@@ -64,30 +64,6 @@ const updateValidationState = (state) => {
     });
 };
 
-const updateFeed = (oldFeed, newFeed, state) => {
-  state.shouldUpdateActiveFeed = false;
-
-  const newItems = _.differenceBy(
-    newFeed.items, [oldFeed],
-    (item) => item.pubDate > oldFeed.pubDate,
-  );
-
-  if (newItems.length === 0) {
-    return;
-  }
-
-  const newPosts = newItems.map(
-    (item) => ({ ...item, id: _.uniqueId(), feedId: oldFeed.id }),
-  );
-
-  state.posts.unshift(...newPosts);
-  oldFeed.pubDate = newFeed.pubDate;
-
-  if (oldFeed.id === state.activeFeedId) {
-    state.shouldUpdateActiveFeed = true;
-  }
-};
-
 const checkForFeedsUpdates = (state) => () => {
   const { feeds } = state;
 
@@ -95,7 +71,27 @@ const checkForFeedsUpdates = (state) => () => {
     const proxyUrl = buildProxyUrl(oldFeed.link);
     return axios.get(proxyUrl).then((response) => {
       const newFeed = parse(response.data);
-      updateFeed(oldFeed, newFeed, state);
+      state.shouldUpdateActiveFeed = false;
+
+      const newItems = _.differenceBy(
+        newFeed.items, [oldFeed],
+        (item) => item.pubDate > oldFeed.pubDate,
+      );
+
+      if (newItems.length === 0) {
+        return;
+      }
+
+      const newPosts = newItems.map(
+        (item) => ({ ...item, id: _.uniqueId(), feedId: oldFeed.id }),
+      );
+
+      state.posts.unshift(...newPosts);
+      oldFeed.pubDate = newFeed.pubDate;
+
+      if (oldFeed.id === state.activeFeedId) {
+        state.shouldUpdateActiveFeed = true;
+      }
     });
   });
 
@@ -104,44 +100,10 @@ const checkForFeedsUpdates = (state) => () => {
   );
 };
 
-const handleSubmitError = (error, state) => {
-  state.form.processState = failed;
-
-  const { response } = error;
-  if (response) {
-    const { status, data } = error.response;
-    state.form.messageType = formMessageTypes.network;
-    state.form.messageContext = { status, data };
-  } else {
-    state.form.messageType = formMessageTypes.parsing;
-    state.form.messageContext = { data: error.message };
-  }
-
-  throw error;
-};
-
-const saveFeedAndPosts = (parsedFeed, feedUrl, state) => {
-  const { items, ...remainingFeedData } = parsedFeed;
-
-  const feed = { ...remainingFeedData, id: _.uniqueId(), link: feedUrl };
-  const posts = items.map(
-    (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
-  );
-
-  if (state.feeds.length === 0) {
-    state.activeFeedId = feed.id;
-  }
-
-  state.feeds.push(feed);
-  state.posts.push(...posts);
-
-  state.form.processState = finished;
-  state.form.messageType = formMessageTypes.success;
-};
-
-const fetchFeed = (url, state) => {
-  state.form.processState = sending;
-  return axios.get(url).then((response) => parse(response.data));
+const handleInput = (state) => ({ target }) => {
+  state.form.data = target.value;
+  state.form.processState = filling;
+  updateValidationState(state);
 };
 
 const handleSubmit = (state) => (event) => {
@@ -150,9 +112,43 @@ const handleSubmit = (state) => (event) => {
   const url = state.form.data;
   const proxyUrl = buildProxyUrl(url);
 
-  fetchFeed(proxyUrl, state)
-    .then((parsedFeed) => saveFeedAndPosts(parsedFeed, url, state))
-    .catch((error) => handleSubmitError(error, state));
+  state.form.processState = sending;
+
+  return axios.get(proxyUrl)
+    .then((response) => parse(response.data))
+    .then((parsedFeed) => {
+      const { items, ...remainingFeedData } = parsedFeed;
+
+      const feed = { ...remainingFeedData, id: _.uniqueId(), link: url };
+      const posts = items.map(
+        (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
+      );
+
+      if (state.feeds.length === 0) {
+        state.activeFeedId = feed.id;
+      }
+
+      state.feeds.push(feed);
+      state.posts.push(...posts);
+
+      state.form.processState = finished;
+      state.form.messageType = formMessageTypes.success;
+    })
+    .catch((error) => {
+      state.form.processState = failed;
+
+      const { response } = error;
+      if (response) {
+        const { status, data } = response;
+        state.form.messageType = formMessageTypes.network;
+        state.form.messageContext = { status, data };
+      } else {
+        state.form.messageType = formMessageTypes.parsing;
+        state.form.messageContext = { data: error.message };
+      }
+
+      throw error;
+    });
 };
 
 export default () => {
@@ -182,12 +178,7 @@ export default () => {
   const inputElement = document.querySelector(input);
   const formElement = document.querySelector(form);
 
-  inputElement.addEventListener('input', ({ target }) => {
-    state.form.data = target.value;
-    state.form.processState = filling;
-    updateValidationState(state);
-  });
-
+  inputElement.addEventListener('input', handleInput(state));
   formElement.addEventListener('submit', handleSubmit(state));
 
   render(state);
