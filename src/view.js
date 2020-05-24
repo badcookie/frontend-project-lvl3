@@ -122,8 +122,6 @@ export const render = (state) => {
       formContainer, submit, feeds, posts, input,
     } = elementsSelectors;
 
-    const postsElement = document.querySelector(posts);
-    const feedsElement = document.querySelector(feeds);
     const inputElement = document.querySelector(input);
     const submitElement = document.querySelector(submit);
     const formContainerElement = document.querySelector(formContainer);
@@ -149,7 +147,10 @@ export const render = (state) => {
         break;
       }
       case formProcessStates.finished: {
+        const postsElement = document.querySelector(posts);
+        const feedsElement = document.querySelector(feeds);
         const formElements = { inputElement, submitElement, formContainerElement };
+
         renderSuccessMessage(state, formElements);
         renderFeeds(state, feedsElement);
         renderPosts(state, postsElement);
