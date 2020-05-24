@@ -16,7 +16,6 @@ const renderFeeds = (state) => {
   feedsElement.innerHTML = '';
 
   const feedsList = document.createElement('ul');
-
   state.feeds.forEach((feed) => {
     const feedItem = document.createElement('li');
     const feedContainer = document.createElement('div');
@@ -39,7 +38,6 @@ const renderFeeds = (state) => {
 
     feedContainer.appendChild(titleElement);
     feedContainer.appendChild(descriptionElement);
-
     feedItem.appendChild(feedContainer);
     feedsList.appendChild(feedItem);
   });
