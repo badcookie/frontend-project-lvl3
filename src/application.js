@@ -8,7 +8,6 @@ import parse from './parser';
 import resources from './locales';
 import { render, formProcessStates } from './view';
 
-/* eslint-disable func-names */
 /* eslint no-param-reassign: ["error", { "props": false }] */
 
 const feedUpdateIntervalMs = 5 * 1000;
@@ -26,43 +25,13 @@ const formMessageTypes = {
   parsing: 'parsingError',
 };
 
-const buildProxyUrl = (url) => urljoin(proxyAddress, url);
-
-yup.addMethod(yup.string, 'notAdded', function () {
-  return this.test('notAdded', function (url) {
-    const { path, createError, options } = this;
-    const { context: { state } } = options;
-    const feedExists = state.feeds.find(({ link }) => link === url);
-    return feedExists ? createError({ path }) : true;
-  });
-});
-
-const schema = yup.object().shape({
-  url: yup.string().required().url().notAdded(),
-});
-
 const validationErrorToMessageType = {
   url: 'invalidUrl',
-  notAdded: 'urlAlreadyExists',
+  notOneOf: 'urlAlreadyExists',
   required: 'urlRequired',
 };
 
-
-const updateValidationState = (state) => {
-  const dataToValidate = { url: state.form.data };
-  const validationContext = { context: { state } };
-
-  schema.validate(dataToValidate, validationContext)
-    .then(() => {
-      state.form.messageType = '';
-      state.form.processState = filling;
-    })
-    .catch((error) => {
-      const messageType = validationErrorToMessageType[error.type];
-      state.form.messageType = messageType;
-      state.form.processState = failed;
-    });
-};
+const buildProxyUrl = (url) => urljoin(proxyAddress, url);
 
 const checkForFeedsUpdates = (state) => () => {
   const { feeds } = state;
@@ -103,7 +72,20 @@ const checkForFeedsUpdates = (state) => () => {
 const handleInput = (state) => ({ target }) => {
   state.form.data = target.value;
   state.form.processState = filling;
-  updateValidationState(state);
+
+  const addedFeeds = state.feeds.map(({ link }) => link);
+  const schema = yup.string().required().url().notOneOf(addedFeeds);
+
+  schema.validate(state.form.data)
+    .then(() => {
+      state.form.messageType = '';
+      state.form.processState = filling;
+    })
+    .catch((error) => {
+      const messageType = validationErrorToMessageType[error.type];
+      state.form.messageType = messageType;
+      state.form.processState = failed;
+    });
 };
 
 const handleSubmit = (state) => (event) => {
