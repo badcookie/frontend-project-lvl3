@@ -26,14 +26,6 @@ const formMessageTypes = {
   parsing: 'parsingError',
 };
 
-class XMLParsingError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'XMLParsingError';
-    this.message = message;
-  }
-}
-
 const buildProxyUrl = (url) => urljoin(proxyAddress, url);
 
 yup.addMethod(yup.string, 'notAdded', function () {
@@ -115,13 +107,14 @@ const checkForFeedsUpdates = (state) => () => {
 const handleSubmitError = (error, state) => {
   state.form.processState = failed;
 
-  if (error instanceof XMLParsingError) {
-    state.form.messageType = formMessageTypes.parsing;
-    state.form.messageContext = { data: error.message };
-  } else {
+  const { response } = error;
+  if (response) {
     const { status, data } = error.response;
     state.form.messageType = formMessageTypes.network;
     state.form.messageContext = { status, data };
+  } else {
+    state.form.messageType = formMessageTypes.parsing;
+    state.form.messageContext = { data: error.message };
   }
 
   throw error;
@@ -148,13 +141,7 @@ const saveFeedAndPosts = (parsedFeed, feedUrl, state) => {
 
 const fetchFeed = (url, state) => {
   state.form.processState = sending;
-  return axios.get(url).then((response) => {
-    try {
-      return parse(response.data);
-    } catch (error) {
-      throw new XMLParsingError(error.message);
-    }
-  });
+  return axios.get(url).then((response) => parse(response.data));
 };
 
 const handleSubmit = (state) => (event) => {
