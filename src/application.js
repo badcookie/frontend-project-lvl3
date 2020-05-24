@@ -32,7 +32,6 @@ const checkForFeedsUpdates = (state) => () => {
     const proxyUrl = buildProxyUrl(oldFeed.link);
     return axios.get(proxyUrl).then((response) => {
       const newFeed = parse(response.data);
-
       const newItems = _.differenceBy(
         newFeed.items, [oldFeed],
         (item) => item.pubDate > oldFeed.pubDate,
@@ -42,10 +41,9 @@ const checkForFeedsUpdates = (state) => () => {
         return;
       }
 
-      const newPosts = newItems.map(
-        (item) => ({ ...item, id: _.uniqueId(), feedId: oldFeed.id }),
-      );
-
+      const newPosts = newItems.map((item) => (
+        { ...item, id: _.uniqueId(), feedId: oldFeed.id }
+      ));
       state.posts.unshift(...newPosts);
       oldFeed.pubDate = newFeed.pubDate;
 
@@ -55,12 +53,10 @@ const checkForFeedsUpdates = (state) => () => {
     });
   });
 
-  Promise.all(tasks).finally(
-    () => {
-      state.shouldUpdateActiveFeed = false;
-      setTimeout(checkForFeedsUpdates(state), feedUpdateIntervalMs);
-    },
-  );
+  Promise.all(tasks).finally(() => {
+    state.shouldUpdateActiveFeed = false;
+    setTimeout(checkForFeedsUpdates(state), feedUpdateIntervalMs);
+  });
 };
 
 const handleInput = (state) => ({ target }) => {
@@ -84,16 +80,13 @@ const handleInput = (state) => ({ target }) => {
 const handleSubmit = (state) => (event) => {
   event.preventDefault();
 
+  state.form.processState = formProcessStates.sending;
   const url = state.form.data;
   const proxyUrl = buildProxyUrl(url);
-
-  state.form.processState = formProcessStates.sending;
-
   return axios.get(proxyUrl)
     .then((response) => {
       const parsedFeed = parse(response.data);
       const { items, ...remainingFeedData } = parsedFeed;
-
       const feed = { ...remainingFeedData, id: _.uniqueId(), link: url };
       const posts = items.map(
         (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
@@ -105,13 +98,11 @@ const handleSubmit = (state) => (event) => {
 
       state.feeds.push(feed);
       state.posts.push(...posts);
-
       state.form.processState = formProcessStates.finished;
       state.form.messageType = formMessageTypes.success;
     })
     .catch((error) => {
       state.form.processState = formProcessStates.failed;
-
       const { response } = error;
       if (response) {
         const { status, data } = response;
@@ -121,7 +112,6 @@ const handleSubmit = (state) => (event) => {
         state.form.messageType = formMessageTypes.parsing;
         state.form.messageContext = { data: error.message };
       }
-
       throw error;
     });
 };
