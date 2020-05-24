@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: ["error", { "props": false }] */
+
 import _ from 'lodash';
 import axios from 'axios';
 import * as yup from 'yup';
@@ -7,8 +9,6 @@ import urljoin from 'url-join';
 import parse from './parser';
 import resources from './locales';
 import { render, formProcessStates } from './view';
-
-/* eslint no-param-reassign: ["error", { "props": false }] */
 
 const feedUpdateIntervalMs = 5 * 1000;
 

@@ -1,7 +1,7 @@
+/* eslint no-param-reassign: ["error", { "props": false }] */
+
 import i18next from 'i18next';
 import { watch } from 'melanke-watchjs';
-
-/* eslint no-param-reassign: ["error", { "props": false }] */
 
 export const formProcessStates = {
   filling: 'filling',
