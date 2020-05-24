@@ -10,7 +10,6 @@ export const formProcessStates = {
   finished: 'finished',
 };
 
-
 const renderFeeds = (state, feedsElement) => {
   feedsElement.innerHTML = '';
 
@@ -100,9 +99,10 @@ const renderSuccessMessage = (state, formElements) => {
 
 export const render = (state) => {
   watch(state, 'shouldUpdateActiveFeed', () => {
-    const { elementsSelectors: { posts } } = state;
+    const { elementsSelectors: { posts }, shouldUpdateActiveFeed } = state;
     const postsElement = document.querySelector(posts);
-    if (state.shouldUpdateActiveFeed) {
+
+    if (shouldUpdateActiveFeed) {
       renderPosts(state, postsElement);
     }
   });
