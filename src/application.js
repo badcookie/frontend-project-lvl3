@@ -38,13 +38,11 @@ const checkForFeedsUpdates = (state) => () => {
       if (newItems.length === 0) {
         return;
       }
-
       const newPosts = newItems.map((item) => (
         { ...item, id: _.uniqueId(), feedId: oldFeed.id }
       ));
       state.posts.unshift(...newPosts);
       oldFeed.pubDate = newFeed.pubDate;
-
       if (oldFeed.id === state.activeFeedId) {
         state.shouldUpdateActiveFeed = true;
       }
@@ -77,7 +75,6 @@ const handleInput = (state) => ({ target }) => {
 
 const handleSubmit = (state) => (event) => {
   event.preventDefault();
-
   state.form.processState = formProcessStates.sending;
   const url = state.form.data;
   const proxyUrl = buildProxyUrl(url);
@@ -87,11 +84,9 @@ const handleSubmit = (state) => (event) => {
     const posts = items.map(
       (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
     );
-
     if (state.feeds.length === 0) {
       state.activeFeedId = feed.id;
     }
-
     state.feeds.push(feed);
     state.posts.push(...posts);
     state.form.processState = formProcessStates.finished;
