@@ -14,21 +14,13 @@ const feedUpdateIntervalMs = 5 * 1000;
 
 const proxyAddress = 'https://cors-anywhere.herokuapp.com';
 
-const {
-  filling, sending, failed, finished,
-} = formProcessStates;
-
 const formMessageTypes = {
+  url: 'invalidUrl',
+  required: 'urlRequired',
+  notOneOf: 'urlAlreadyExists',
   network: 'networkError',
   success: 'success',
-  urlRequired: 'urlRequired',
   parsing: 'parsingError',
-};
-
-const validationErrorToMessageType = {
-  url: 'invalidUrl',
-  notOneOf: 'urlAlreadyExists',
-  required: 'urlRequired',
 };
 
 const buildProxyUrl = (url) => urljoin(proxyAddress, url);
@@ -40,7 +32,6 @@ const checkForFeedsUpdates = (state) => () => {
     const proxyUrl = buildProxyUrl(oldFeed.link);
     return axios.get(proxyUrl).then((response) => {
       const newFeed = parse(response.data);
-      state.shouldUpdateActiveFeed = false;
 
       const newItems = _.differenceBy(
         newFeed.items, [oldFeed],
@@ -65,13 +56,16 @@ const checkForFeedsUpdates = (state) => () => {
   });
 
   Promise.all(tasks).finally(
-    () => setTimeout(checkForFeedsUpdates(state), feedUpdateIntervalMs),
+    () => {
+      state.shouldUpdateActiveFeed = false;
+      setTimeout(checkForFeedsUpdates(state), feedUpdateIntervalMs);
+    },
   );
 };
 
 const handleInput = (state) => ({ target }) => {
   state.form.data = target.value;
-  state.form.processState = filling;
+  state.form.processState = formProcessStates.filling;
 
   const addedFeeds = state.feeds.map(({ link }) => link);
   const schema = yup.string().required().url().notOneOf(addedFeeds);
@@ -79,12 +73,11 @@ const handleInput = (state) => ({ target }) => {
   schema.validate(state.form.data)
     .then(() => {
       state.form.messageType = '';
-      state.form.processState = filling;
+      state.form.processState = formProcessStates.filling;
     })
     .catch((error) => {
-      const messageType = validationErrorToMessageType[error.type];
-      state.form.messageType = messageType;
-      state.form.processState = failed;
+      state.form.messageType = formMessageTypes[error.type];
+      state.form.processState = formProcessStates.failed;
     });
 };
 
@@ -94,11 +87,11 @@ const handleSubmit = (state) => (event) => {
   const url = state.form.data;
   const proxyUrl = buildProxyUrl(url);
 
-  state.form.processState = sending;
+  state.form.processState = formProcessStates.sending;
 
   return axios.get(proxyUrl)
-    .then((response) => parse(response.data))
-    .then((parsedFeed) => {
+    .then((response) => {
+      const parsedFeed = parse(response.data);
       const { items, ...remainingFeedData } = parsedFeed;
 
       const feed = { ...remainingFeedData, id: _.uniqueId(), link: url };
@@ -113,11 +106,11 @@ const handleSubmit = (state) => (event) => {
       state.feeds.push(feed);
       state.posts.push(...posts);
 
-      state.form.processState = finished;
+      state.form.processState = formProcessStates.finished;
       state.form.messageType = formMessageTypes.success;
     })
     .catch((error) => {
-      state.form.processState = failed;
+      state.form.processState = formProcessStates.failed;
 
       const { response } = error;
       if (response) {
@@ -139,7 +132,7 @@ export default () => {
       data: '',
       messageType: formMessageTypes.urlRequired,
       messageContext: {},
-      processState: filling,
+      processState: formProcessStates.filling,
     },
     feeds: [],
     posts: [],
