@@ -27,7 +27,6 @@ const buildProxyUrl = (url) => urljoin(proxyAddress, url);
 
 const checkForFeedsUpdates = (state) => () => {
   const { feeds } = state;
-
   const tasks = feeds.map((oldFeed) => {
     const proxyUrl = buildProxyUrl(oldFeed.link);
     return axios.get(proxyUrl).then((response) => {
@@ -36,7 +35,6 @@ const checkForFeedsUpdates = (state) => () => {
         newFeed.items, [oldFeed],
         (item) => item.pubDate > oldFeed.pubDate,
       );
-
       if (newItems.length === 0) {
         return;
       }
@@ -83,37 +81,34 @@ const handleSubmit = (state) => (event) => {
   state.form.processState = formProcessStates.sending;
   const url = state.form.data;
   const proxyUrl = buildProxyUrl(url);
-  return axios.get(proxyUrl)
-    .then((response) => {
-      const parsedFeed = parse(response.data);
-      const { items, ...remainingFeedData } = parsedFeed;
-      const feed = { ...remainingFeedData, id: _.uniqueId(), link: url };
-      const posts = items.map(
-        (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
-      );
+  return axios.get(proxyUrl).then((response) => {
+    const { items, ...remainingFeedData } = parse(response.data);
+    const feed = { ...remainingFeedData, id: _.uniqueId(), link: url };
+    const posts = items.map(
+      (item) => ({ ...item, id: _.uniqueId(), feedId: feed.id }),
+    );
 
-      if (state.feeds.length === 0) {
-        state.activeFeedId = feed.id;
-      }
+    if (state.feeds.length === 0) {
+      state.activeFeedId = feed.id;
+    }
 
-      state.feeds.push(feed);
-      state.posts.push(...posts);
-      state.form.processState = formProcessStates.finished;
-      state.form.messageType = formMessageTypes.success;
-    })
-    .catch((error) => {
-      state.form.processState = formProcessStates.failed;
-      const { response } = error;
-      if (response) {
-        const { status, data } = response;
-        state.form.messageType = formMessageTypes.network;
-        state.form.messageContext = { status, data };
-      } else {
-        state.form.messageType = formMessageTypes.parsing;
-        state.form.messageContext = { data: error.message };
-      }
-      throw error;
-    });
+    state.feeds.push(feed);
+    state.posts.push(...posts);
+    state.form.processState = formProcessStates.finished;
+    state.form.messageType = formMessageTypes.success;
+  }).catch((error) => {
+    state.form.processState = formProcessStates.failed;
+    const { response } = error;
+    if (response) {
+      const { status, data } = response;
+      state.form.messageType = formMessageTypes.network;
+      state.form.messageContext = { status, data };
+    } else {
+      state.form.messageType = formMessageTypes.parsing;
+      state.form.messageContext = { data: error.message };
+    }
+    throw error;
+  });
 };
 
 export default () => {
