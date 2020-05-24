@@ -2,7 +2,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import * as yup from 'yup';
 import i18next from 'i18next';
-import * as urljoin from 'url-join';
+import urljoin from 'url-join';
 
 import parse from './parser';
 import resources from './locales';
@@ -168,12 +168,6 @@ const handleSubmit = (state) => (event) => {
     .catch((error) => handleSubmitError(error, state));
 };
 
-const handleInput = (state) => ({ target }) => {
-  state.form.data = target.value;
-  state.form.processState = filling;
-  updateValidationState(state);
-};
-
 export default () => {
   const state = {
     form: {
@@ -186,19 +180,28 @@ export default () => {
     posts: [],
     activeFeedId: null,
     shouldUpdateActiveFeed: false,
-    elements: {
-      input: document.querySelector('input'),
-      form: document.querySelector('form'),
-      submit: document.querySelector('button'),
-      formContainer: document.querySelector('.jumbotron'),
-      feeds: document.querySelector('.rss-feeds'),
-      posts: document.querySelector('.rss-posts'),
+    elementsSelectors: {
+      input: 'input',
+      form: 'form',
+      submit: 'button',
+      formContainer: '.jumbotron',
+      feeds: '.rss-feeds',
+      posts: '.rss-posts',
     },
   };
 
-  const { elements: { input, form } } = state;
-  input.addEventListener('input', handleInput(state));
-  form.addEventListener('submit', handleSubmit(state));
+  const { elementsSelectors: { input, form } } = state;
+
+  const inputElement = document.querySelector(input);
+  const formElement = document.querySelector(form);
+
+  inputElement.addEventListener('input', ({ target }) => {
+    state.form.data = target.value;
+    state.form.processState = filling;
+    updateValidationState(state);
+  });
+
+  formElement.addEventListener('submit', handleSubmit(state));
 
   render(state);
   i18next.init({ lng: 'en', resources });

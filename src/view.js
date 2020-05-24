@@ -69,79 +69,90 @@ const renderPosts = (state, postsElement) => {
 };
 
 const renderFailureMessage = (state, formElements) => {
-  const { formContainer, submit, input } = formElements;
+  const { formContainerElement, submitElement, inputElement } = formElements;
   const { form: { messageType, messageContext } } = state;
 
   const formMessage = i18next.t(`messages.${messageType}`, messageContext);
   const feedbackElement = document.createElement('div');
   feedbackElement.classList.add('feedback', 'text-danger');
   feedbackElement.textContent = formMessage;
-  formContainer.appendChild(feedbackElement);
+  formContainerElement.appendChild(feedbackElement);
 
-  input.style.borderColor = 'red';
-  submit.disabled = true;
-  submit.blur();
+  inputElement.style.borderColor = 'red';
+  submitElement.disabled = true;
+  submitElement.blur();
 };
 
 const renderSuccessMessage = (state, formElements) => {
-  const { formContainer, submit, input } = formElements;
+  const { formContainerElement, submitElement, inputElement } = formElements;
 
   const formMessage = i18next.t(`messages.${state.form.messageType}`);
   const feedbackElement = document.createElement('div');
   feedbackElement.classList.add('feedback', 'text-success');
   feedbackElement.textContent = formMessage;
-  formContainer.appendChild(feedbackElement);
+  formContainerElement.appendChild(feedbackElement);
 
-  input.value = '';
-  input.style.removeProperty('border');
-  submit.blur();
+  inputElement.value = '';
+  inputElement.style.removeProperty('border');
+  submitElement.blur();
 };
 
 
 export const render = (state) => {
-  const { elements } = state;
-
   watch(state, 'shouldUpdateActiveFeed', () => {
+    const { elementsSelectors: { posts } } = state;
+    const postsElement = document.querySelector(posts);
     if (state.shouldUpdateActiveFeed) {
-      renderPosts(state, elements.posts);
+      renderPosts(state, postsElement);
     }
   });
 
   watch(state, 'activeFeedId', () => {
-    const { posts, feeds } = elements;
-    renderFeeds(state, feeds);
-    renderPosts(state, posts);
+    const { elementsSelectors: { posts, feeds } } = state;
+    const postsElement = document.querySelector(posts);
+    const feedsElement = document.querySelector(feeds);
+
+    renderFeeds(state, feedsElement);
+    renderPosts(state, postsElement);
   });
 
   watch(state.form, 'processState', () => {
-    const { form: { processState } } = state;
+    const { form: { processState }, elementsSelectors } = state;
     const {
-      formContainer, submit, feeds, posts,
-    } = elements;
+      formContainer, submit, feeds, posts, input,
+    } = elementsSelectors;
 
-    const existingFeedback = formContainer.querySelector('.feedback');
+    const postsElement = document.querySelector(posts);
+    const feedsElement = document.querySelector(feeds);
+    const inputElement = document.querySelector(input);
+    const submitElement = document.querySelector(submit);
+    const formContainerElement = document.querySelector(formContainer);
+
+    const existingFeedback = formContainerElement.querySelector('.feedback');
     if (existingFeedback) {
-      formContainer.removeChild(existingFeedback);
+      formContainerElement.removeChild(existingFeedback);
     }
 
     switch (processState) {
       case formProcessStates.filling: {
-        elements.input.style.removeProperty('border');
-        submit.disabled = false;
+        inputElement.style.removeProperty('border');
+        submitElement.disabled = false;
         break;
       }
       case formProcessStates.sending: {
-        submit.disabled = true;
+        submitElement.disabled = true;
         break;
       }
       case formProcessStates.failed: {
-        renderFailureMessage(state, elements);
+        const formElements = { inputElement, submitElement, formContainerElement };
+        renderFailureMessage(state, formElements);
         break;
       }
       case formProcessStates.finished: {
-        renderSuccessMessage(state, elements);
-        renderFeeds(state, feeds);
-        renderPosts(state, posts);
+        const formElements = { inputElement, submitElement, formContainerElement };
+        renderSuccessMessage(state, formElements);
+        renderFeeds(state, feedsElement);
+        renderPosts(state, postsElement);
         break;
       }
       default: {
