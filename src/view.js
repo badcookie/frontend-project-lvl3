@@ -38,6 +38,7 @@ const renderFeeds = (state) => {
 
     feedContainer.appendChild(titleElement);
     feedContainer.appendChild(descriptionElement);
+
     feedItem.appendChild(feedContainer);
     feedsList.appendChild(feedItem);
   });
@@ -71,6 +72,7 @@ const renderPosts = (state) => {
 
 const renderFailureMessage = (state) => {
   const { formContainer, submit, input } = state.elementsSelectors;
+
   const formContainerElement = document.querySelector(formContainer);
   const submitElement = document.querySelector(submit);
   const inputElement = document.querySelector(input);
@@ -90,6 +92,7 @@ const renderFailureMessage = (state) => {
 
 const renderSuccessMessage = (state) => {
   const { formContainer, submit, input } = state.elementsSelectors;
+
   const formContainerElement = document.querySelector(formContainer);
   const submitElement = document.querySelector(submit);
   const inputElement = document.querySelector(input);
