@@ -132,20 +132,10 @@ export default () => {
     posts: [],
     activeFeedId: null,
     shouldUpdateActiveFeed: false,
-    elementsSelectors: {
-      input: 'input',
-      form: 'form',
-      submit: 'button',
-      formContainer: '.jumbotron',
-      feeds: '.rss-feeds',
-      posts: '.rss-posts',
-    },
   };
 
-  const { elementsSelectors: { input, form } } = state;
-
-  const inputElement = document.querySelector(input);
-  const formElement = document.querySelector(form);
+  const inputElement = document.querySelector('input');
+  const formElement = document.querySelector('form');
 
   inputElement.addEventListener('input', handleInput(state));
   formElement.addEventListener('submit', handleSubmit(state));

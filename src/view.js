@@ -11,8 +11,7 @@ export const formProcessStates = {
 };
 
 const renderFeeds = (state) => {
-  const { elementsSelectors: { feeds } } = state;
-  const feedsElement = document.querySelector(feeds);
+  const feedsElement = document.querySelector('.rss-feeds');
   feedsElement.innerHTML = '';
 
   const feedsList = document.createElement('ul');
@@ -47,8 +46,7 @@ const renderFeeds = (state) => {
 };
 
 const renderPosts = (state) => {
-  const { elementsSelectors: { posts } } = state;
-  const postsElement = document.querySelector(posts);
+  const postsElement = document.querySelector('.rss-posts');
   postsElement.innerHTML = '';
 
   const activePosts = state.posts.filter(
@@ -71,11 +69,9 @@ const renderPosts = (state) => {
 };
 
 const renderFailureMessage = (state) => {
-  const { formContainer, submit, input } = state.elementsSelectors;
-
-  const formContainerElement = document.querySelector(formContainer);
-  const submitElement = document.querySelector(submit);
-  const inputElement = document.querySelector(input);
+  const formContainerElement = document.querySelector('.jumbotron');
+  const submitElement = document.querySelector('button');
+  const inputElement = document.querySelector('input');
 
   const { form: { messageType, messageContext } } = state;
 
@@ -91,11 +87,9 @@ const renderFailureMessage = (state) => {
 };
 
 const renderSuccessMessage = (state) => {
-  const { formContainer, submit, input } = state.elementsSelectors;
-
-  const formContainerElement = document.querySelector(formContainer);
-  const submitElement = document.querySelector(submit);
-  const inputElement = document.querySelector(input);
+  const formContainerElement = document.querySelector('.jumbotron');
+  const submitElement = document.querySelector('button');
+  const inputElement = document.querySelector('input');
 
   const formMessage = i18next.t(`messages.${state.form.messageType}`);
   const feedbackElement = document.createElement('div');
@@ -122,10 +116,9 @@ export const render = (state) => {
   });
 
   watch(state.form, 'processState', () => {
-    const { form: { processState }, elementsSelectors } = state;
-    const { formContainer, submit, input } = elementsSelectors;
+    const { form: { processState } } = state;
 
-    const formContainerElement = document.querySelector(formContainer);
+    const formContainerElement = document.querySelector('.jumbotron');
     const existingFeedback = formContainerElement.querySelector('.feedback');
     if (existingFeedback) {
       formContainerElement.removeChild(existingFeedback);
@@ -133,14 +126,14 @@ export const render = (state) => {
 
     switch (processState) {
       case formProcessStates.filling: {
-        const inputElement = document.querySelector(input);
-        const submitElement = document.querySelector(submit);
+        const inputElement = document.querySelector('input');
+        const submitElement = document.querySelector('button');
         inputElement.style.removeProperty('border');
         submitElement.disabled = false;
         break;
       }
       case formProcessStates.sending: {
-        const submitElement = document.querySelector(submit);
+        const submitElement = document.querySelector('button');
         submitElement.disabled = true;
         break;
       }
