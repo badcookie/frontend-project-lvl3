@@ -10,8 +10,7 @@ export const formProcessStates = {
   finished: 'finished',
 };
 
-const renderFeeds = (state) => {
-  const feedsElement = document.querySelector('.rss-feeds');
+const renderFeeds = (state, feedsElement) => {
   feedsElement.innerHTML = '';
 
   const feedsList = document.createElement('ul');
@@ -45,8 +44,7 @@ const renderFeeds = (state) => {
   feedsElement.appendChild(feedsList);
 };
 
-const renderPosts = (state) => {
-  const postsElement = document.querySelector('.rss-posts');
+const renderPosts = (state, postsElement) => {
   postsElement.innerHTML = '';
 
   const activePosts = state.posts.filter(
@@ -68,10 +66,8 @@ const renderPosts = (state) => {
   });
 };
 
-const renderFailureMessage = (state) => {
-  const formContainerElement = document.querySelector('.jumbotron');
-  const submitElement = document.querySelector('button');
-  const inputElement = document.querySelector('input');
+const renderFailureMessage = (state, elements) => {
+  const { input, submit, formContainer } = elements;
 
   const { form: { messageType, messageContext } } = state;
 
@@ -79,72 +75,70 @@ const renderFailureMessage = (state) => {
   const feedbackElement = document.createElement('div');
   feedbackElement.classList.add('feedback', 'text-danger');
   feedbackElement.textContent = formMessage;
-  formContainerElement.appendChild(feedbackElement);
+  formContainer.appendChild(feedbackElement);
 
-  inputElement.style.borderColor = 'red';
-  submitElement.disabled = true;
-  submitElement.blur();
+  input.style.borderColor = 'red';
+  submit.disabled = true;
+  submit.blur();
 };
 
-const renderSuccessMessage = (state) => {
-  const formContainerElement = document.querySelector('.jumbotron');
-  const submitElement = document.querySelector('button');
-  const inputElement = document.querySelector('input');
+const renderSuccessMessage = (state, elements) => {
+  const { input, submit, formContainer } = elements;
 
   const formMessage = i18next.t(`messages.${state.form.messageType}`);
   const feedbackElement = document.createElement('div');
   feedbackElement.classList.add('feedback', 'text-success');
   feedbackElement.textContent = formMessage;
-  formContainerElement.appendChild(feedbackElement);
+  formContainer.appendChild(feedbackElement);
 
-  inputElement.value = '';
-  inputElement.style.removeProperty('border');
-  submitElement.blur();
+  input.value = '';
+  input.style.removeProperty('border');
+  submit.blur();
 };
 
 
-export const render = (state) => {
+export const render = (elements, state) => {
+  const {
+    feeds, posts, formContainer, input, submit,
+  } = elements;
+
   watch(state, 'shouldUpdateActiveFeed', () => {
     if (state.shouldUpdateActiveFeed) {
-      renderPosts(state);
+      renderPosts(state, posts);
     }
   });
 
   watch(state, 'activeFeedId', () => {
-    renderFeeds(state);
-    renderPosts(state);
+    renderFeeds(state, feeds);
+    renderPosts(state, posts);
   });
 
   watch(state.form, 'processState', () => {
     const { form: { processState } } = state;
 
-    const formContainerElement = document.querySelector('.jumbotron');
-    const existingFeedback = formContainerElement.querySelector('.feedback');
+    const existingFeedback = formContainer.querySelector('.feedback');
     if (existingFeedback) {
-      formContainerElement.removeChild(existingFeedback);
+      formContainer.removeChild(existingFeedback);
     }
 
     switch (processState) {
       case formProcessStates.filling: {
-        const inputElement = document.querySelector('input');
-        const submitElement = document.querySelector('button');
-        inputElement.style.removeProperty('border');
-        submitElement.disabled = false;
+        input.style.removeProperty('border');
+        submit.disabled = false;
         break;
       }
       case formProcessStates.sending: {
-        const submitElement = document.querySelector('button');
-        submitElement.disabled = true;
+        submit.disabled = true;
         break;
       }
       case formProcessStates.failed: {
-        renderFailureMessage(state);
+        renderFailureMessage(state, elements);
         break;
       }
       case formProcessStates.finished: {
-        renderSuccessMessage(state);
-        renderFeeds(state);
-        renderPosts(state);
+        renderSuccessMessage(state, elements);
+        renderFeeds(state, feeds);
+        renderPosts(state, posts);
         break;
       }
       default: {

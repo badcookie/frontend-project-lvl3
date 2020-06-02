@@ -134,13 +134,19 @@ export default () => {
     shouldUpdateActiveFeed: false,
   };
 
-  const inputElement = document.querySelector('input');
-  const formElement = document.querySelector('form');
+  const elements = {
+    input: document.querySelector('input'),
+    form: document.querySelector('form'),
+    formContainer: document.querySelector('.jumbotron'),
+    submit: document.querySelector('button'),
+    feeds: document.querySelector('.rss-feeds'),
+    posts: document.querySelector('.rss-posts'),
+  };
 
-  inputElement.addEventListener('input', handleInput(state));
-  formElement.addEventListener('submit', handleSubmit(state));
+  elements.input.addEventListener('input', handleInput(state));
+  elements.form.addEventListener('submit', handleSubmit(state));
 
-  render(state);
+  render(elements, state);
   i18next.init({ lng: 'en', resources });
   setTimeout(checkForFeedsUpdates(state), feedUpdateIntervalMs);
 };
